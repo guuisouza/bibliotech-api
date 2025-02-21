@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException
 } from '@nestjs/common'
@@ -38,6 +39,18 @@ export class AuthorService {
 
   async delete(id: number) {
     await this.checkIfAuthorExists(id)
+
+    const authorWithBooks = await this.prisma.book.count({
+      where: {
+        authorId: id
+      }
+    })
+
+    if (authorWithBooks > 0) {
+      throw new ConflictException(
+        "you can't exclude this author because he has books associated with him"
+      )
+    }
 
     await this.prisma.author.delete({
       where: { id }
