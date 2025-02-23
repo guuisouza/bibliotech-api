@@ -12,8 +12,8 @@ model Author {
   name      String   @db.VarChar(90)
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @db.Timestamp(0)
+  Book      Book[]
 
-  Book Book[]
   @@map("authors")
 }
 
@@ -27,4 +27,16 @@ model Book {
 
   author Author      @relation(fields: [authorId], references: [id], onDelete: Restrict)
   @@map("books")
+}
+
+model Student {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  name      String   @db.VarChar(90)
+  email     String   @db.VarChar(90) @unique()
+  phone     String   @db.VarChar(15)
+  academicRegistration  String @db.VarChar(13) @unique()
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @db.Timestamp(0)
+
+  @@map("students")
 }
