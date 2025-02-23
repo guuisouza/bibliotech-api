@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateBookDTO } from './dto/create-book.dto'
 import { AuthorService } from '../author/author.service'
@@ -101,6 +105,16 @@ export class BookService {
   async delete(id: number) {
     await this.checkIfBookExists(id)
 
+    const activeLoans = await this.prisma.loan.count({
+      where: { bookId: id, isActive: true }
+    })
+
+    if (activeLoans > 0) {
+      throw new ConflictException(
+        'this book is still on loan and cannot be deleted.'
+      )
+    }
+
     return this.prisma.book.delete({
       where: { id }
     })
@@ -110,5 +124,14 @@ export class BookService {
     if (!(await this.prisma.book.count({ where: { id } }))) {
       throw new NotFoundException(`book id ${id} does not exist`)
     }
+  }
+
+  async setBookAvailability(id: number) {
+    await this.prisma.book.update({
+      where: { id },
+      data: {
+        available: false
+      }
+    })
   }
 }
