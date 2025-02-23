@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException
 } from '@nestjs/common'
@@ -86,6 +87,24 @@ export class StudentService {
     }
 
     return this.prisma.student.update({ where: { id }, data: dataToUpdate })
+  }
+
+  async delete(id: number) {
+    await this.checkIfStudentExists(id)
+
+    const activeLoans = await this.prisma.loan.count({
+      where: { studentId: id, isActive: true }
+    })
+
+    if (activeLoans > 0) {
+      throw new ConflictException(
+        'this student still has active loans and cannot be deleted.'
+      )
+    }
+
+    await this.prisma.student.delete({
+      where: { id }
+    })
   }
 
   async checkIfStudentExists(id: number) {
