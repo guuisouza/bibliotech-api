@@ -13,5 +13,18 @@ model Author {
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @db.Timestamp(0)
 
+  Book Book[]
   @@map("authors")
+}
+
+model Book {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  title     String   @db.VarChar(250)
+  authorId  Int      @db.UnsignedInt
+  available Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @db.Timestamp(0)
+
+  author Author      @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  @@map("books")
 }
