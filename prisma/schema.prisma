@@ -27,6 +27,7 @@ model Book {
 
   author Author      @relation(fields: [authorId], references: [id], onDelete: Restrict)
   @@map("books")
+  Loan Loan[]
 }
 
 model Student {
@@ -39,4 +40,21 @@ model Student {
   updatedAt DateTime @default(now()) @db.Timestamp(0)
 
   @@map("students")
+  Loan Loan[]
+}
+
+model Loan {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  studentId Int      @db.UnsignedInt
+  bookId    Int      @db.UnsignedInt
+  loanDate  DateTime @default(now()) @db.Timestamp(0)
+  dueDate   DateTime @db.Timestamp(0)
+  isActive Boolean   @default(true)
+  returnDate DateTime? @db.Timestamp(0)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @db.Timestamp(0)
+
+  book Book    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  student Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  @@map("loans")
 }

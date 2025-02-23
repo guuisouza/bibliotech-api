@@ -7,6 +7,6 @@ import { StudentController } from './student.controller'
   imports: [PrismaModule],
   controllers: [StudentController],
   providers: [StudentService],
-  exports: []
+  exports: [StudentService]
 })
 export class StudentModule {}
