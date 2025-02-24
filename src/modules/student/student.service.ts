@@ -31,7 +31,15 @@ export class StudentService {
   }
 
   async findAll() {
-    const students = await this.prisma.student.findMany()
+    const students = await this.prisma.student.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        academicRegistration: true
+      }
+    })
 
     return students
   }
