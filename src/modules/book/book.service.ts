@@ -21,14 +21,13 @@ export class BookService {
     return this.prisma.book.create({ data })
   }
 
-  async findAll() {
+  async findAll(available?: boolean) {
     const books = await this.prisma.book.findMany({
+      where: available !== undefined ? { available } : {},
       select: {
         id: true,
         title: true,
         available: true,
-        createdAt: true,
-        updatedAt: true,
         author: {
           select: {
             id: true,
@@ -37,10 +36,6 @@ export class BookService {
         }
       }
     })
-
-    if (!books) {
-      throw new NotFoundException('books not found')
-    }
 
     return books
   }

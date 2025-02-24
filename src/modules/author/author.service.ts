@@ -20,11 +20,12 @@ export class AuthorService {
   }
 
   async findAll() {
-    const authors = await this.prisma.author.findMany()
-
-    if (!authors) {
-      throw new NotFoundException('authors not found')
-    }
+    const authors = await this.prisma.author.findMany({
+      select: {
+        id: true,
+        name: true
+      }
+    })
 
     return authors
   }
