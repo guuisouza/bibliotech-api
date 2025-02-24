@@ -7,7 +7,8 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post
+  Post,
+  Query
 } from '@nestjs/common'
 import { CreateBookDTO } from './dto/create-book.dto'
 import { BookService } from './book.service'
@@ -23,8 +24,10 @@ export class BookController {
   }
 
   @Get()
-  async findAll() {
-    return this.bookService.findAll()
+  async findAll(@Query('available') available?: string) {
+    const isAvailable =
+      available === 'true' ? true : available === 'false' ? false : undefined
+    return this.bookService.findAll(isAvailable)
   }
 
   @Get(':id')
