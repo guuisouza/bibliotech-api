@@ -93,7 +93,7 @@ DATABASE_URL="mysql://<usuário>:<senha>@<host>:<porta>/<nome_do_database>"
 
 A documentação da API estará disponível via Swagger UI em futuras versões
 
-### Endpoints Principais
+### Endpoints Principais - USE O POSTMAN/INSOMNIA PARA TESTAR
 
 #### Autores
 
@@ -106,6 +106,8 @@ A documentação da API estará disponível via Swagger UI em futuras versões
 
 - `POST /books` - Criar livro
 - `GET /books` - Consultar todos os livros
+- `GET /books?available=true` - Consultar apenas os livros diponiveis
+- `GET /books?available=false` - Consultar apenas os livros emprestados
 - `GET /books/:bookId` - Consultar livro detalhadamente
 - `PATCH /books/:bookId` - Atualizar um livro existente
 - `DELETE /books/:bookId` - Excluir um livro
