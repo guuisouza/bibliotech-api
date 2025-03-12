@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException
@@ -12,8 +11,14 @@ export class AuthorService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateAuthorDTO) {
-    if (data.name.trim() === '') {
-      throw new BadRequestException('name should not be empty')
+    const existingAuthor = await this.prisma.author.count({
+      where: {
+        name: data.name
+      }
+    })
+
+    if (existingAuthor > 0) {
+      throw new ConflictException('author already exists')
     }
 
     return this.prisma.author.create({ data })
@@ -23,7 +28,9 @@ export class AuthorService {
     const authors = await this.prisma.author.findMany({
       select: {
         id: true,
-        name: true
+        name: true,
+        nationality: true,
+        birthYear: true
       }
     })
 
@@ -34,7 +41,12 @@ export class AuthorService {
     await this.checkIfAuthorExists(id)
 
     return this.prisma.author.findUnique({
-      where: { id }
+      where: {
+        id
+      },
+      include: {
+        books: true
+      }
     })
   }
 
