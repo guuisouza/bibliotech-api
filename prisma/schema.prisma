@@ -10,9 +10,11 @@ datasource db {
 model Author {
   id        Int      @id @default(autoincrement()) @db.UnsignedInt
   name      String   @db.VarChar(90)
+  nationality String @db.VarChar(30)
+  birthYear Int
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @db.Timestamp(0)
-  Book      Book[]
+  books      Book[]
 
   @@map("authors")
 }
@@ -20,8 +22,11 @@ model Author {
 model Book {
   id        Int      @id @default(autoincrement()) @db.UnsignedInt
   title     String   @db.VarChar(250)
-  authorId  Int      @db.UnsignedInt
-  available Boolean  @default(true)
+  genre         String   @db.VarChar(50)
+  authorId      Int      @db.UnsignedInt
+  isAvailable   Boolean  @default(true)
+  isbn          String   @db.VarChar(25)
+  yearPublished Int
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @db.Timestamp(0)
 
