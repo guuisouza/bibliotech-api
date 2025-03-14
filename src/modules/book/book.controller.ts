@@ -24,9 +24,13 @@ export class BookController {
   }
 
   @Get()
-  async findAll(@Query('available') available?: string) {
+  async findAll(@Query('isAvailable') isAavailable?: string) {
     const isAvailable =
-      available === 'true' ? true : available === 'false' ? false : undefined
+      isAavailable === 'true'
+        ? true
+        : isAavailable === 'false'
+          ? false
+          : undefined
     return this.bookService.findAll(isAvailable)
   }
 

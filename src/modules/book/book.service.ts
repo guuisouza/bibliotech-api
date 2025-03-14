@@ -21,13 +21,16 @@ export class BookService {
     return this.prisma.book.create({ data })
   }
 
-  async findAll(available?: boolean) {
+  async findAll(isAvailable?: boolean) {
     const books = await this.prisma.book.findMany({
-      where: available !== undefined ? { available } : {},
+      where: isAvailable !== undefined ? { isAvailable } : {},
       select: {
         id: true,
         title: true,
-        available: true,
+        genre: true,
+        isbn: true,
+        yearPublished: true,
+        isAvailable: true,
         author: {
           select: {
             id: true,
@@ -45,12 +48,7 @@ export class BookService {
 
     return this.prisma.book.findUnique({
       where: { id },
-      select: {
-        id: true,
-        title: true,
-        available: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
         author: {
           select: {
             id: true,
@@ -116,16 +114,34 @@ export class BookService {
   }
 
   async checkIfBookExists(id: number) {
-    if (!(await this.prisma.book.count({ where: { id } }))) {
+    const book = await this.prisma.book.findUnique({
+      where: {
+        id
+      }
+    })
+
+    if (!book) {
       throw new NotFoundException(`book id ${id} does not exist`)
     }
   }
 
-  async setBookAvailability(id: number) {
+  async checkIfBookIsRented(id: number) {
+    const book = await this.prisma.book.findUnique({
+      where: {
+        id,
+        isAvailable: true
+      }
+    })
+
+    if (!book) {
+      throw new ConflictException('this book is already rented')
+    }
+  }
+  async setBookAvailability(id: number, isAvailable: boolean) {
     await this.prisma.book.update({
       where: { id },
       data: {
-        available: false
+        isAvailable
       }
     })
   }
