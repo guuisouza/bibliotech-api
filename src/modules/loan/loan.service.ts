@@ -29,10 +29,7 @@ export class LoanService {
 
     await this.bookService.checkIfBookExists(data.bookId)
 
-    const availableBook = await this.bookService.findOne(data.bookId)
-    if (availableBook.available === false) {
-      throw new ConflictException('this book is already rented')
-    }
+    await this.bookService.checkIfBookIsRented(data.bookId)
 
     const activeLoan = await this.prisma.loan.findFirst({
       where: {
@@ -45,7 +42,7 @@ export class LoanService {
       throw new ConflictException('this student already has an active loan')
     }
 
-    await this.bookService.setBookAvailability(data.bookId)
+    await this.bookService.setBookAvailability(data.bookId, false)
 
     return this.prisma.loan.create({
       data: {
@@ -129,10 +126,7 @@ export class LoanService {
       }
     })
 
-    await this.prisma.book.update({
-      where: { id: loan.bookId },
-      data: { available: true }
-    })
+    await this.bookService.setBookAvailability(id, true)
   }
 
   async delete(id: number) {
