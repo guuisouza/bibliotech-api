@@ -1,9 +1,19 @@
-import { Transform } from 'class-transformer'
-import { IsEmail, IsNotEmpty, IsString, Length, Matches } from 'class-validator'
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Length,
+  Matches,
+  MaxLength
+} from 'class-validator'
 
 export class CreateStudentDTO {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(90)
+  @Matches(/\S/, {
+    message: 'name should not be empty'
+  })
   name: string
 
   @IsEmail()
@@ -12,9 +22,10 @@ export class CreateStudentDTO {
 
   @IsNotEmpty()
   @IsString()
-  @Transform(({ value }) =>
-    value.replace(/\D/g, '').replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3')
-  )
+  @Length(15, 15, {
+    message:
+      'the phone number must be exactly 15 characters long (format: (XX) XXXXX-XXXX)'
+  })
   @Matches(/^\(\d{2}\) \d{5}-\d{4}$/, {
     message: 'the phone number must be in the format (XX) XXXXX-XXXX'
   })
@@ -23,6 +34,9 @@ export class CreateStudentDTO {
   @IsString()
   @Length(13, 13, {
     message: 'the academic registry must be exactly 13 digits long'
+  })
+  @Matches(/\S/, {
+    message: 'academic registration should not be empty'
   })
   academicRegistration: string
 }

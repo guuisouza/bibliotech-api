@@ -11,6 +11,7 @@ import {
 export class CreateBookDTO {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(250)
   @Matches(/\S/, {
     message: 'title should not be empty'
   })
@@ -22,6 +23,7 @@ export class CreateBookDTO {
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(50)
   @Matches(/\S/, {
     message: 'genre should not be empty'
   })
@@ -37,7 +39,9 @@ export class CreateBookDTO {
 
   @IsNumber()
   @IsNotEmpty()
-  @Min(1000, { message: 'the year must be 4 digits and valid' })
-  @Max(9999, { message: 'the year must be 4 digits and valid' })
+  @Min(1000, { message: 'the published year must be greater than 1000' })
+  @Max(new Date().getFullYear(), {
+    message: 'the published year must be less than the current year'
+  })
   yearPublished: number
 }

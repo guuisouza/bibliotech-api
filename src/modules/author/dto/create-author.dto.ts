@@ -4,12 +4,14 @@ import {
   IsString,
   Matches,
   Max,
+  MaxLength,
   Min
 } from 'class-validator'
 
 export class CreateAuthorDTO {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(90)
   @Matches(/\S/, {
     message: 'name should not be empty'
   })
@@ -17,6 +19,7 @@ export class CreateAuthorDTO {
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(30)
   @Matches(/\S/, {
     message: 'nationality should not be empty'
   })
@@ -24,7 +27,9 @@ export class CreateAuthorDTO {
 
   @IsNumber()
   @IsNotEmpty()
-  @Min(1000, { message: 'the year must be 4 digits and valid' })
-  @Max(9999, { message: 'the year must be 4 digits and valid' })
+  @Min(1000, { message: 'the birth year must be greater than 1000' })
+  @Max(new Date().getFullYear() - 16, {
+    message: 'the author must be over 16 years old'
+  })
   birthYear: number
 }
