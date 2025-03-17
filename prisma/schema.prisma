@@ -63,3 +63,14 @@ model Loan {
   student Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
   @@map("loans")
 }
+
+model User {
+  id Int @id @default(autoincrement())
+  username String @unique
+  email String @unique
+  password String
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @db.Timestamp(0)
+
+  @@map("users")
+}
