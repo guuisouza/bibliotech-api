@@ -125,8 +125,7 @@ export class LoanService {
         updatedAt: new Date()
       }
     })
-
-    await this.bookService.setBookAvailability(id, true)
+    await this.bookService.setBookAvailability(loan.bookId, true)
   }
 
   async delete(id: number) {
