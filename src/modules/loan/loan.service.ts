@@ -137,7 +137,13 @@ export class LoanService {
   }
 
   async checkIfLoanExists(id: number) {
-    if (!(await this.prisma.loan.count({ where: { id } }))) {
+    const loan = await this.prisma.loan.findUnique({
+      where: {
+        id
+      }
+    })
+
+    if (!loan) {
       throw new NotFoundException(`loan id ${id} does not exist`)
     }
   }

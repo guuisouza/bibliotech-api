@@ -71,7 +71,13 @@ export class AuthorService {
   }
 
   async checkIfAuthorExists(id: number) {
-    if (!(await this.prisma.author.count({ where: { id } }))) {
+    const author = await this.prisma.author.findUnique({
+      where: {
+        id
+      }
+    })
+
+    if (!author) {
       throw new NotFoundException(`author id ${id} does not exist`)
     }
   }

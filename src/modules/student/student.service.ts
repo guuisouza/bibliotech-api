@@ -116,19 +116,23 @@ export class StudentService {
   }
 
   async checkIfStudentExists(id: number) {
-    if (!(await this.prisma.student.count({ where: { id } }))) {
+    const student = await this.prisma.student.findUnique({
+      where: { id }
+    })
+
+    if (!student) {
       throw new NotFoundException(`student id ${id} does not exist`)
     }
   }
 
   async findByEmail(email: string) {
-    return this.prisma.student.count({
+    return this.prisma.student.findUnique({
       where: { email }
     })
   }
 
   async findByAcademicRegistration(academicRegistration: string) {
-    return this.prisma.student.count({
+    return this.prisma.student.findUnique({
       where: { academicRegistration }
     })
   }
