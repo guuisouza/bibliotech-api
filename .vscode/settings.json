@@ -1,4 +1,6 @@
-{  "eslint.validate": ["javascript", "typescript"],
+{
+  "eslint.validate": ["javascript", "typescript"],
+  "editor.tabSize": 2,
   "editor.formatOnType": true,
   "editor.formatOnPaste": true,
   "editor.formatOnSave": true,
@@ -7,4 +9,4 @@
     "source.fixAll.prettier": "explicit"
   },
   "editor.rulers": [80]
-} 
+}
