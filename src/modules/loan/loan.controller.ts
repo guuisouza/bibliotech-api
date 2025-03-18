@@ -6,11 +6,14 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post
+  Post,
+  UseGuards
 } from '@nestjs/common'
 import { CreateLoanDTO } from './dto/create-loan.dto'
 import { LoanService } from './loan.service'
+import { JwtAuthGuard } from 'src/guards/jwt-auth-guard'
 
+@UseGuards(JwtAuthGuard)
 @Controller('loans')
 export class LoanController {
   constructor(private readonly loanService: LoanService) {}

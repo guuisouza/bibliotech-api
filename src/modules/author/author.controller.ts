@@ -6,11 +6,14 @@ import {
   HttpCode,
   Param,
   ParseIntPipe,
-  Post
+  Post,
+  UseGuards
 } from '@nestjs/common'
 import { AuthorService } from './author.service'
 import { CreateAuthorDTO } from './dto/create-author.dto'
+import { JwtAuthGuard } from 'src/guards/jwt-auth-guard'
 
+@UseGuards(JwtAuthGuard)
 @Controller('authors')
 export class AuthorController {
   constructor(private readonly authorService: AuthorService) {}

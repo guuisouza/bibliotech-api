@@ -8,12 +8,15 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Query
+  Query,
+  UseGuards
 } from '@nestjs/common'
 import { CreateBookDTO } from './dto/create-book.dto'
 import { BookService } from './book.service'
 import { UpdatePatchBookDTO } from './dto/update-patch-book.dto'
+import { JwtAuthGuard } from 'src/guards/jwt-auth-guard'
 
+@UseGuards(JwtAuthGuard)
 @Controller('books')
 export class BookController {
   constructor(private readonly bookService: BookService) {}
