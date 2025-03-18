@@ -137,6 +137,7 @@ export class BookService {
       throw new ConflictException('this book is already rented')
     }
   }
+
   async setBookAvailability(id: number, isAvailable: boolean) {
     await this.prisma.book.update({
       where: { id },
