@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service'
 import { CreateLoanDTO } from './dto/create-loan.dto'
 import { StudentService } from '../student/student.service'
 import { BookService } from '../book/book.service'
+import { FiltersQueryLoanDTO } from './dto/filters-query-loan.dto'
 
 @Injectable()
 export class LoanService {
@@ -53,8 +54,32 @@ export class LoanService {
     })
   }
 
-  async findAll() {
-    return this.prisma.loan.findMany({
+  async findAll(filters: FiltersQueryLoanDTO) {
+    const {
+      studentId,
+      bookId,
+      loanDateStart,
+      loanDateLimit,
+      isActive,
+      orderBy,
+      orderDirection,
+      page,
+      perPage
+    } = filters
+
+    const loans = await this.prisma.loan.findMany({
+      skip: (page - 1) * perPage,
+      take: perPage,
+      where: {
+        studentId: studentId ? { equals: studentId } : undefined,
+        bookId: bookId ? { equals: bookId } : undefined,
+        loanDate: {
+          gte: loanDateStart ? new Date(loanDateStart) : undefined,
+          lte: loanDateLimit ? new Date(loanDateLimit) : undefined
+        },
+        isActive
+      },
+      orderBy: orderBy ? { [orderBy]: orderDirection } : undefined,
       select: {
         id: true,
         loanDate: true,
@@ -73,6 +98,26 @@ export class LoanService {
         }
       }
     })
+
+    const total = await this.prisma.loan.count({
+      where: {
+        studentId: studentId ? { equals: studentId } : undefined,
+        bookId: bookId ? { equals: bookId } : undefined,
+        loanDate: {
+          gte: loanDateStart ? new Date(loanDateStart) : undefined,
+          lte: loanDateLimit ? new Date(loanDateLimit) : undefined
+        },
+        isActive
+      }
+    })
+
+    return {
+      total,
+      page,
+      perPage,
+      totalPages: Math.ceil(total / perPage),
+      data: loans
+    }
   }
 
   async findOne(id: number) {

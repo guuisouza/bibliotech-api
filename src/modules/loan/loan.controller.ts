@@ -7,11 +7,13 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards
 } from '@nestjs/common'
 import { CreateLoanDTO } from './dto/create-loan.dto'
 import { LoanService } from './loan.service'
 import { JwtAuthGuard } from 'src/guards/jwt-auth-guard'
+import { FiltersQueryLoanDTO } from './dto/filters-query-loan.dto'
 
 @UseGuards(JwtAuthGuard)
 @Controller('loans')
@@ -24,8 +26,8 @@ export class LoanController {
   }
 
   @Get()
-  async findAll() {
-    return this.loanService.findAll()
+  async findAll(@Query() filters: FiltersQueryLoanDTO) {
+    return this.loanService.findAll(filters)
   }
 
   @Get(':id')
