@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateAuthorDTO } from './dto/create-author.dto'
+import { FiltersQueryAuthorDTO } from './dto/filters-query-author.dto'
 
 @Injectable()
 export class AuthorService {
@@ -24,8 +25,28 @@ export class AuthorService {
     return this.prisma.author.create({ data })
   }
 
-  async findAll() {
+  async findAll(filters: FiltersQueryAuthorDTO) {
+    const {
+      name,
+      birthYearAfter,
+      birthYearBefore,
+      orderBy,
+      orderDirection,
+      page,
+      perPage
+    } = filters
+
     const authors = await this.prisma.author.findMany({
+      skip: (page - 1) * perPage,
+      take: perPage,
+      where: {
+        name: name ? { contains: name } : undefined,
+        birthYear: {
+          gte: birthYearAfter,
+          lte: birthYearBefore
+        }
+      },
+      orderBy: orderBy ? { [orderBy]: orderDirection } : undefined,
       select: {
         id: true,
         name: true,
@@ -34,7 +55,23 @@ export class AuthorService {
       }
     })
 
-    return authors
+    const total = await this.prisma.author.count({
+      where: {
+        name: name ? { contains: name } : undefined,
+        birthYear: {
+          gte: birthYearAfter,
+          lte: birthYearBefore
+        }
+      }
+    })
+
+    return {
+      total,
+      page,
+      perPage,
+      totalPages: Math.ceil(total / perPage),
+      data: authors
+    }
   }
 
   async findOne(id: number) {

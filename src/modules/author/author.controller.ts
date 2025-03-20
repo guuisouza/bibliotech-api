@@ -7,11 +7,13 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards
 } from '@nestjs/common'
 import { AuthorService } from './author.service'
 import { CreateAuthorDTO } from './dto/create-author.dto'
 import { JwtAuthGuard } from 'src/guards/jwt-auth-guard'
+import { FiltersQueryAuthorDTO } from './dto/filters-query-author.dto'
 
 @UseGuards(JwtAuthGuard)
 @Controller('authors')
@@ -24,8 +26,8 @@ export class AuthorController {
   }
 
   @Get()
-  async findAll() {
-    return this.authorService.findAll()
+  async findAll(@Query() filters: FiltersQueryAuthorDTO) {
+    return this.authorService.findAll(filters)
   }
 
   @Get(':id')
