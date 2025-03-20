@@ -7,12 +7,14 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards
 } from '@nestjs/common'
 import { StudentService } from './student.service'
 import { CreateStudentDTO } from './dto/create-student.dto'
 import { UpdatePatchStudentDTO } from './dto/update-patch-student.dto'
 import { JwtAuthGuard } from 'src/guards/jwt-auth-guard'
+import { FiltersQueryStudentDTO } from './dto/filters-query-student.dto'
 
 @UseGuards(JwtAuthGuard)
 @Controller('students')
@@ -25,8 +27,8 @@ export class StudentController {
   }
 
   @Get()
-  async findAll() {
-    return this.studentService.findAll()
+  async findAll(@Query() filters: FiltersQueryStudentDTO) {
+    return this.studentService.findAll(filters)
   }
 
   @Get(':id')

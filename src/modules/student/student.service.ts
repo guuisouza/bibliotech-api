@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateStudentDTO } from './dto/create-student.dto'
 import { UpdatePatchStudentDTO } from './dto/update-patch-student.dto'
+import { FiltersQueryStudentDTO } from './dto/filters-query-student.dto'
 
 @Injectable()
 export class StudentService {
@@ -30,8 +31,18 @@ export class StudentService {
     return this.prisma.student.create({ data })
   }
 
-  async findAll() {
+  async findAll(filters: FiltersQueryStudentDTO) {
+    const { name, email, ra, orderBy, orderDirection, page, perPage } = filters
+
     const students = await this.prisma.student.findMany({
+      skip: (page - 1) * perPage,
+      take: perPage,
+      where: {
+        name: name ? { contains: name } : undefined,
+        email: email ? { contains: email } : undefined,
+        academicRegistration: ra ? { equals: ra } : undefined
+      },
+      orderBy: orderBy ? { [orderBy]: orderDirection } : undefined,
       select: {
         id: true,
         name: true,
@@ -41,7 +52,21 @@ export class StudentService {
       }
     })
 
-    return students
+    const total = await this.prisma.student.count({
+      where: {
+        name: name ? { contains: name } : undefined,
+        email: email ? { contains: email } : undefined,
+        academicRegistration: ra ? { contains: ra } : undefined
+      }
+    })
+
+    return {
+      total,
+      page,
+      perPage,
+      totalPages: Math.ceil(total / perPage),
+      data: students
+    }
   }
 
   async findOne(id: number) {
