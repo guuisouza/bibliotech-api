@@ -15,6 +15,7 @@ import { CreateBookDTO } from './dto/create-book.dto'
 import { BookService } from './book.service'
 import { UpdatePatchBookDTO } from './dto/update-patch-book.dto'
 import { JwtAuthGuard } from 'src/guards/jwt-auth-guard'
+import { FiltersQueryBookDTO } from './dto/filters-query-book.dto'
 
 @UseGuards(JwtAuthGuard)
 @Controller('books')
@@ -27,14 +28,8 @@ export class BookController {
   }
 
   @Get()
-  async findAll(@Query('isAvailable') isAavailable?: string) {
-    const isAvailable =
-      isAavailable === 'true'
-        ? true
-        : isAavailable === 'false'
-          ? false
-          : undefined
-    return this.bookService.findAll(isAvailable)
+  async findAll(@Query() filters: FiltersQueryBookDTO) {
+    return this.bookService.findAll(filters)
   }
 
   @Get(':id')

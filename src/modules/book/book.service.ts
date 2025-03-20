@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service'
 import { CreateBookDTO } from './dto/create-book.dto'
 import { AuthorService } from '../author/author.service'
 import { UpdatePatchBookDTO } from './dto/update-patch-book.dto'
+import { FiltersQueryBookDTO } from './dto/filters-query-book.dto'
 
 @Injectable()
 export class BookService {
@@ -21,9 +22,34 @@ export class BookService {
     return this.prisma.book.create({ data })
   }
 
-  async findAll(isAvailable?: boolean) {
+  async findAll(filters: FiltersQueryBookDTO) {
+    const {
+      title,
+      genre,
+      yearPublishedAfter,
+      yearPublishedBefore,
+      isbn,
+      isAvailable,
+      orderBy,
+      orderDirection,
+      page,
+      perPage
+    } = filters
+
     const books = await this.prisma.book.findMany({
-      where: isAvailable !== undefined ? { isAvailable } : {},
+      skip: (page - 1) * perPage,
+      take: perPage,
+      where: {
+        title: title ? { contains: title } : undefined,
+        genre: genre ? { contains: genre } : undefined,
+        isbn: isbn ? { equals: isbn } : undefined,
+        isAvailable,
+        yearPublished: {
+          gte: yearPublishedAfter,
+          lte: yearPublishedBefore
+        }
+      },
+      orderBy: orderBy ? { [orderBy]: orderDirection } : undefined,
       select: {
         id: true,
         title: true,
@@ -40,7 +66,26 @@ export class BookService {
       }
     })
 
-    return books
+    const total = await this.prisma.book.count({
+      where: {
+        title: title ? { contains: title } : undefined,
+        genre: genre ? { contains: genre } : undefined,
+        yearPublished: {
+          gte: yearPublishedAfter,
+          lte: yearPublishedBefore
+        },
+        isbn: isbn ? { equals: isbn } : undefined,
+        isAvailable
+      }
+    })
+
+    return {
+      total,
+      page,
+      perPage,
+      totalPages: Math.ceil(total / perPage),
+      data: books
+    }
   }
 
   async findOne(id: number) {
