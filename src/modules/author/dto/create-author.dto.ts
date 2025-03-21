@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
   IsNotEmpty,
   IsNumber,
@@ -9,6 +10,10 @@ import {
 } from 'class-validator'
 
 export class CreateAuthorDTO {
+  @ApiProperty({
+    example: 'George Orwell',
+    description: "Author's full name"
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(90)
@@ -17,6 +22,10 @@ export class CreateAuthorDTO {
   })
   name: string
 
+  @ApiProperty({
+    example: 'Britânico',
+    description: "Author's nationality"
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(30)
@@ -25,6 +34,10 @@ export class CreateAuthorDTO {
   })
   nationality: string
 
+  @ApiProperty({
+    example: 1903,
+    description: 'Year of birth of the author'
+  })
   @IsNumber()
   @IsNotEmpty()
   @Min(1000, { message: 'the birth year must be greater than 1000' })
