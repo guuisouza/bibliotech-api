@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException
@@ -16,14 +15,14 @@ export class StudentService {
   async create(data: CreateStudentDTO) {
     const emailExists = await this.findByEmail(data.email)
     if (emailExists) {
-      throw new BadRequestException('this student email already exists')
+      throw new ConflictException('this student email already exists')
     }
 
     const raExists = await this.findByAcademicRegistration(
       data.academicRegistration
     )
     if (raExists) {
-      throw new BadRequestException(
+      throw new ConflictException(
         'this student academic registry already exists'
       )
     }
@@ -89,7 +88,7 @@ export class StudentService {
     if (data.email && data.email.trim() !== '') {
       const emailExists = await this.findByEmail(data.email)
       if (emailExists) {
-        throw new BadRequestException('this student email already exists')
+        throw new ConflictException('this student email already exists')
       }
       dataToUpdate['email'] = data.email
     }
@@ -103,7 +102,7 @@ export class StudentService {
         data.academicRegistration
       )
       if (raExists) {
-        throw new BadRequestException(
+        throw new ConflictException(
           'this student academic registry already exists'
         )
       }
