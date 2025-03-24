@@ -128,6 +128,18 @@ export class BookService {
       dataToUpdate['authorId'] = data.authorId
     }
 
+    if (data.genre) {
+      dataToUpdate['genre'] = data.genre
+    }
+
+    if (data.isbn) {
+      dataToUpdate['isbn'] = data.isbn
+    }
+
+    if (data.yearPublished) {
+      dataToUpdate['yearPublished'] = data.yearPublished
+    }
+
     if (
       Object.keys(dataToUpdate).some(
         (key) => dataToUpdate[key] !== undefined && dataToUpdate[key] !== null
