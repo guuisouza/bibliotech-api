@@ -157,6 +157,12 @@ export class AuthorController {
   @ApiOperation({
     summary: 'Delete a single author'
   })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Author ID',
+    example: 1
+  })
   @ApiResponse({
     status: 204,
     description: 'Author successfully deleted'
