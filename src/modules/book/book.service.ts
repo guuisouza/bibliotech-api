@@ -17,6 +17,16 @@ export class BookService {
   ) {}
 
   async create(data: CreateBookDTO) {
+    const existingBook = await this.prisma.book.count({
+      where: {
+        title: data.title
+      }
+    })
+
+    if (existingBook > 0) {
+      throw new ConflictException('book already exists')
+    }
+
     await this.authorService.checkIfAuthorExists(data.authorId)
 
     return this.prisma.book.create({ data })
