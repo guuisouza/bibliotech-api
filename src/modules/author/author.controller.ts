@@ -34,15 +34,13 @@ export class AuthorController {
   @ApiResponse({
     status: 201,
     description: 'Author created successfully',
-    schema: {
-      example: {
-        id: 1,
-        name: 'George Orwell',
-        nationality: 'Britânico',
-        birthYear: 1903,
-        createdAt: '2025-03-21T20:36:23.000Z',
-        updatedAt: '2025-03-21T20:36:23.000Z'
-      }
+    example: {
+      id: 1,
+      name: 'George Orwell',
+      nationality: 'Britânico',
+      birthYear: 1903,
+      createdAt: '2025-03-21T20:36:23.000Z',
+      updatedAt: '2025-03-21T20:36:23.000Z'
     }
   })
   @ApiResponse({
@@ -79,21 +77,19 @@ export class AuthorController {
   @ApiResponse({
     status: 200,
     description: 'List of authors with pagination',
-    schema: {
-      example: {
-        total: 1,
-        page: 1,
-        perPage: 5,
-        totalPages: 1,
-        data: [
-          {
-            id: 1,
-            name: 'George Orwell',
-            nationality: 'Britânico',
-            birthYear: 1903
-          }
-        ]
-      }
+    example: {
+      total: 1,
+      page: 1,
+      perPage: 5,
+      totalPages: 1,
+      data: [
+        {
+          id: 1,
+          name: 'George Orwell',
+          nationality: 'Britânico',
+          birthYear: 1903
+        }
+      ]
     }
   })
   @ApiResponse({
@@ -117,28 +113,26 @@ export class AuthorController {
   @ApiResponse({
     status: 200,
     description: 'Successful response with author details and books',
-    schema: {
-      example: {
-        id: 1,
-        name: 'George Orwell',
-        nationality: 'Britânico',
-        birthYear: 1903,
-        createdAt: '2025-03-14T18:53:09.000Z',
-        updatedAt: '2025-03-14T18:53:09.000Z',
-        books: [
-          {
-            id: 1,
-            title: '1984',
-            genre: 'Distopia',
-            authorId: 6,
-            isAvailable: true,
-            isbn: '9780451524935',
-            yearPublished: 1949,
-            createdAt: '2025-03-14T19:07:06.000Z',
-            updatedAt: '2025-03-14T19:07:06.000Z'
-          }
-        ]
-      }
+    example: {
+      id: 1,
+      name: 'George Orwell',
+      nationality: 'Britânico',
+      birthYear: 1903,
+      createdAt: '2025-03-14T18:53:09.000Z',
+      updatedAt: '2025-03-14T18:53:09.000Z',
+      books: [
+        {
+          id: 1,
+          title: '1984',
+          genre: 'Distopia',
+          authorId: 6,
+          isAvailable: true,
+          isbn: '9780451524935',
+          yearPublished: 1949,
+          createdAt: '2025-03-14T19:07:06.000Z',
+          updatedAt: '2025-03-14T19:07:06.000Z'
+        }
+      ]
     }
   })
   @ApiResponse({

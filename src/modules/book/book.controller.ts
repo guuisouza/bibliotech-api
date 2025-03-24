@@ -35,18 +35,16 @@ export class BookController {
   @ApiResponse({
     status: 201,
     description: 'Book created successfully',
-    schema: {
-      example: {
-        id: 1,
-        title: 'Animal Farm',
-        genre: 'Satire',
-        authorId: 1,
-        isAvailable: true,
-        isbn: '9788535909553',
-        yearPublished: 1945,
-        createdAt: '2025-03-24T19:56:45.000Z',
-        updatedAt: '2025-03-24T19:56:45.000Z'
-      }
+    example: {
+      id: 1,
+      title: 'Animal Farm',
+      genre: 'Satire',
+      authorId: 1,
+      isAvailable: true,
+      isbn: '9788535909553',
+      yearPublished: 1945,
+      createdAt: '2025-03-24T19:56:45.000Z',
+      updatedAt: '2025-03-24T19:56:45.000Z'
     }
   })
   @ApiResponse({
@@ -90,27 +88,25 @@ export class BookController {
   @ApiResponse({
     status: 200,
     description: 'List of books with pagination',
-    schema: {
-      example: {
-        total: 1,
-        page: 1,
-        perPage: 5,
-        totalPages: 1,
-        data: [
-          {
+    example: {
+      total: 1,
+      page: 1,
+      perPage: 5,
+      totalPages: 1,
+      data: [
+        {
+          id: 1,
+          title: 'Animal Farm',
+          genre: 'Satire',
+          isbn: '9788535909553',
+          yearPublished: 1945,
+          isAvailable: true,
+          author: {
             id: 1,
-            title: 'Animal Farm',
-            genre: 'Satire',
-            isbn: '9788535909553',
-            yearPublished: 1945,
-            isAvailable: true,
-            author: {
-              id: 1,
-              name: 'George Orwell'
-            }
+            name: 'George Orwell'
           }
-        ]
-      }
+        }
+      ]
     }
   })
   @ApiResponse({
@@ -135,21 +131,19 @@ export class BookController {
     status: 200,
     description:
       'Successful response with all the detailed information of the book',
-    schema: {
-      example: {
+    example: {
+      id: 1,
+      title: 'Animal Farm',
+      genre: 'Satire',
+      authorId: 1,
+      isAvailable: true,
+      isbn: '9788535909553',
+      yearPublished: 1945,
+      createdAt: '2025-03-24T19:56:45.000Z',
+      updatedAt: '2025-03-24T19:56:45.000Z',
+      author: {
         id: 1,
-        title: 'Animal Farm',
-        genre: 'Satire',
-        authorId: 1,
-        isAvailable: true,
-        isbn: '9788535909553',
-        yearPublished: 1945,
-        createdAt: '2025-03-24T19:56:45.000Z',
-        updatedAt: '2025-03-24T19:56:45.000Z',
-        author: {
-          id: 1,
-          name: 'George Orwell'
-        }
+        name: 'George Orwell'
       }
     }
   })
@@ -197,17 +191,15 @@ export class BookController {
   @ApiResponse({
     status: 200,
     description: 'Book successfully updated',
-    schema: {
-      example: {
-        id: 1,
-        title: 'Animal Farm - New Edition',
-        genre: 'Political Satire',
-        authorId: 1,
-        isbn: '9780451526342',
-        yearPublished: 1945,
-        createdAt: '2025-03-24T19:56:45.000Z',
-        updatedAt: '2025-03-24T20:29:30.000Z'
-      }
+    example: {
+      id: 1,
+      title: 'Animal Farm - New Edition',
+      genre: 'Political Satire',
+      authorId: 1,
+      isbn: '9780451526342',
+      yearPublished: 1945,
+      createdAt: '2025-03-24T19:56:45.000Z',
+      updatedAt: '2025-03-24T20:29:30.000Z'
     }
   })
   @ApiResponse({
