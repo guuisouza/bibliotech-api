@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
   IsNotEmpty,
   IsNumber,
@@ -9,6 +10,10 @@ import {
 } from 'class-validator'
 
 export class CreateBookDTO {
+  @ApiProperty({
+    example: 'Animal Farm',
+    description: 'Book title'
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(250)
@@ -17,10 +22,18 @@ export class CreateBookDTO {
   })
   title: string
 
+  @ApiProperty({
+    example: '1',
+    description: 'Book author ID'
+  })
   @IsNumber()
   @IsNotEmpty()
   authorId: number
 
+  @ApiProperty({
+    example: 'Satire',
+    description: 'Main genre of the book'
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
@@ -29,6 +42,10 @@ export class CreateBookDTO {
   })
   genre: string
 
+  @ApiProperty({
+    example: '9788535909553',
+    description: 'Book isbn registration'
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(15)
@@ -37,6 +54,10 @@ export class CreateBookDTO {
   })
   isbn: string
 
+  @ApiProperty({
+    example: 1945,
+    description: 'Year the book was published'
+  })
   @IsNumber()
   @IsNotEmpty()
   @Min(1000, { message: 'the published year must be greater than 1000' })
