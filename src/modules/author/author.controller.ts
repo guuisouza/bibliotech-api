@@ -159,11 +159,15 @@ export class AuthorController {
   })
   @ApiResponse({
     status: 204,
-    description: 'Author successfully deleted'
+    description: 'No Content - Author successfully deleted'
   })
   @ApiResponse({
     status: 401,
     description: 'Unauthorized'
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found - author id 2 does not exist'
   })
   @ApiResponse({
     status: 409,

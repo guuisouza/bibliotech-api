@@ -229,11 +229,15 @@ export class BookController {
   })
   @ApiResponse({
     status: 204,
-    description: 'Book successfully deleted'
+    description: 'No Content - Book successfully deleted'
   })
   @ApiResponse({
     status: 401,
     description: 'Unauthorized'
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found - author id 55 does not exist'
   })
   @ApiResponse({
     status: 409,
