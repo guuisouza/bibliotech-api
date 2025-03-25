@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException
 } from '@nestjs/common'
@@ -7,10 +9,15 @@ import { PrismaService } from '../prisma/prisma.service'
 import { CreateStudentDTO } from './dto/create-student.dto'
 import { UpdatePatchStudentDTO } from './dto/update-patch-student.dto'
 import { FiltersQueryStudentDTO } from './dto/filters-query-student.dto'
+import { LoanService } from '../loan/loan.service'
 
 @Injectable()
 export class StudentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => LoanService))
+    private readonly loanService: LoanService
+  ) {}
 
   async create(data: CreateStudentDTO) {
     const emailExists = await this.findByEmail(data.email)
@@ -71,9 +78,15 @@ export class StudentService {
   async findOne(id: number) {
     await this.checkIfStudentExists(id)
 
-    return this.prisma.student.findUnique({
+    const student = await this.prisma.student.findUnique({
       where: { id }
     })
+
+    const activeLoan = await this.loanService.findActiveLoanByStudentId(id)
+    return {
+      ...student,
+      activeLoan
+    }
   }
 
   async update(data: UpdatePatchStudentDTO, id: number) {
