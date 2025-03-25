@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
   IsEmail,
   IsNotEmpty,
@@ -8,6 +9,10 @@ import {
 } from 'class-validator'
 
 export class CreateStudentDTO {
+  @ApiProperty({
+    example: 'Alice Oliveira',
+    description: "Student's full name"
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(90)
@@ -16,10 +21,18 @@ export class CreateStudentDTO {
   })
   name: string
 
+  @ApiProperty({
+    example: 'alice.oliveira@email.com',
+    description: "Student's email"
+  })
   @IsEmail()
   @IsNotEmpty()
   email: string
 
+  @ApiProperty({
+    example: '(11) 98765-4321',
+    description: "Student's phone"
+  })
   @IsNotEmpty()
   @IsString()
   @Length(15, 15, {
@@ -31,6 +44,10 @@ export class CreateStudentDTO {
   })
   phone: string
 
+  @ApiProperty({
+    example: '2023123456789',
+    description: 'Student academic record'
+  })
   @IsString()
   @Length(13, 13, {
     message: 'the academic registry must be exactly 13 digits long'
