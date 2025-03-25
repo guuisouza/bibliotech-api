@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException
 } from '@nestjs/common'
@@ -14,8 +16,9 @@ import { FiltersQueryLoanDTO } from './dto/filters-query-loan.dto'
 export class LoanService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly studentService: StudentService,
-    private readonly bookService: BookService
+    private readonly bookService: BookService,
+    @Inject(forwardRef(() => StudentService))
+    private readonly studentService: StudentService
   ) {}
 
   async create(data: CreateLoanDTO) {
@@ -191,5 +194,14 @@ export class LoanService {
     if (!loan) {
       throw new NotFoundException(`loan id ${id} does not exist`)
     }
+  }
+
+  async findActiveLoanByStudentId(studentId: number) {
+    return this.prisma.loan.findFirst({
+      where: {
+        studentId,
+        isActive: true
+      }
+    })
   }
 }
