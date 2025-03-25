@@ -285,11 +285,15 @@ export class StudentController {
   })
   @ApiResponse({
     status: 204,
-    description: 'Student successfully deleted'
+    description: 'No Content - Student successfully deleted'
   })
   @ApiResponse({
     status: 401,
     description: 'Unauthorized'
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found - student id 44 does not exist'
   })
   @ApiResponse({
     status: 409,
