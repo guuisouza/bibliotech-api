@@ -236,10 +236,6 @@ export class BookController {
     description: 'Unauthorized'
   })
   @ApiResponse({
-    status: 404,
-    description: 'Not Found - book id 55 does not exist'
-  })
-  @ApiResponse({
     status: 409,
     description: 'Conflict - this book is still on loan and cannot be deleted.'
   })
