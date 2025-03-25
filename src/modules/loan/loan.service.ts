@@ -179,6 +179,17 @@ export class LoanService {
   async delete(id: number) {
     await this.checkIfLoanExists(id)
 
+    const activeLoan = await this.prisma.loan.findUnique({
+      where: {
+        id,
+        isActive: true
+      }
+    })
+
+    if (activeLoan) {
+      throw new ConflictException('this loan is active and cannot be deleted')
+    }
+
     await this.prisma.loan.delete({
       where: { id }
     })
