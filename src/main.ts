@@ -3,9 +3,25 @@ import { AppModule } from './app.module'
 import { ValidationPipe } from '@nestjs/common'
 import { SeedService } from './modules/prisma/seed/seed.service'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { ConfigService } from '@nestjs/config'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
+  const configService = app.get(ConfigService)
+
+  const corsConfig = {
+    origin: (configService.get<string>('CORS_ORIGIN') || '').split(','),
+    methods: (configService.get<string>('CORS_METHODS') || '').split(','),
+    allowedHeaders: (
+      configService.get<string>('CORS_ALLOWED_HEADERS') || ''
+    ).split(','),
+    exposedHeaders: (
+      configService.get<string>('CORS_EXPOSED_HEADERS') || ''
+    ).split(','),
+    credentials: configService.get<boolean>('CORS_CREDENTIALS'),
+    maxAge: configService.get<number>('CORS_MAX_AGE')
+  }
+  app.enableCors(corsConfig)
 
   app.setGlobalPrefix('api/v2')
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
@@ -25,7 +41,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config)
 
   SwaggerModule.setup('docs', app, document)
-
-  await app.listen(process.env.PORT)
+  const apiPort = configService.get<string>('PORT') || '3000'
+  await app.listen(apiPort)
 }
 bootstrap()
