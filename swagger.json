@@ -1,0 +1,1545 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v2/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - incorrect email or password"
+          }
+        },
+        "summary": "Admin login",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v2/authors": {
+      "post": {
+        "operationId": "AuthorController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAuthorDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Author created successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 1,
+                  "name": "George Orwell",
+                  "nationality": "Britânico",
+                  "birthYear": 1903,
+                  "createdAt": "2025-03-21T20:36:23.000Z",
+                  "updatedAt": "2025-03-21T20:36:23.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Conflict - author already exists"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new author",
+        "tags": [
+          "Authors"
+        ]
+      },
+      "get": {
+        "operationId": "AuthorController_findAll",
+        "parameters": [
+          {
+            "name": "perPage",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 5
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1
+            }
+          },
+          {
+            "name": "orderDirection",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "name",
+                "birthYear"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "birthYearBefore",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 2000
+            }
+          },
+          {
+            "name": "birthYearAfter",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1900
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "George Orwell"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of authors with pagination",
+            "content": {
+              "application/json": {
+                "example": {
+                  "total": 1,
+                  "page": 1,
+                  "perPage": 5,
+                  "totalPages": 1,
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "George Orwell",
+                      "nationality": "Britânico",
+                      "birthYear": 1903
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all authors with filters and pagination",
+        "tags": [
+          "Authors"
+        ]
+      }
+    },
+    "/api/v2/authors/{id}": {
+      "get": {
+        "operationId": "AuthorController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Author ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with author details and books",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 1,
+                  "name": "George Orwell",
+                  "nationality": "Britânico",
+                  "birthYear": 1903,
+                  "createdAt": "2025-03-14T18:53:09.000Z",
+                  "updatedAt": "2025-03-14T18:53:09.000Z",
+                  "books": [
+                    {
+                      "id": 1,
+                      "title": "1984",
+                      "genre": "Distopia",
+                      "authorId": 6,
+                      "isAvailable": true,
+                      "isbn": "9780451524935",
+                      "yearPublished": 1949,
+                      "createdAt": "2025-03-14T19:07:06.000Z",
+                      "updatedAt": "2025-03-14T19:07:06.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - author id 2 does not exist"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a single author with their detailed information",
+        "tags": [
+          "Authors"
+        ]
+      },
+      "delete": {
+        "operationId": "AuthorController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Author ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content - Author successfully deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - author id 2 does not exist"
+          },
+          "409": {
+            "description": "Conflict - you can't exclude this author because he has books associated with him"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a single author",
+        "tags": [
+          "Authors"
+        ]
+      }
+    },
+    "/api/v2/books": {
+      "post": {
+        "operationId": "BookController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Book created successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 1,
+                  "title": "Animal Farm",
+                  "genre": "Satire",
+                  "authorId": 1,
+                  "isAvailable": true,
+                  "isbn": "9788535909553",
+                  "yearPublished": 1945,
+                  "createdAt": "2025-03-24T19:56:45.000Z",
+                  "updatedAt": "2025-03-24T19:56:45.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - author id 55 does not exist"
+          },
+          "409": {
+            "description": "Conflict - book already exists"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new book",
+        "tags": [
+          "Book"
+        ]
+      },
+      "get": {
+        "operationId": "BookController_findAll",
+        "parameters": [
+          {
+            "name": "perPage",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 5
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1
+            }
+          },
+          {
+            "name": "orderDirection",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "title",
+                "yearPublished"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "isAvailable",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": true
+            }
+          },
+          {
+            "name": "isbn",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "9788535909553"
+            }
+          },
+          {
+            "name": "yearPublishedBefore",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 2000
+            }
+          },
+          {
+            "name": "yearPublishedAfter",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1900
+            }
+          },
+          {
+            "name": "genre",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Satire"
+            }
+          },
+          {
+            "name": "title",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Animal Farm"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of books with pagination",
+            "content": {
+              "application/json": {
+                "example": {
+                  "total": 1,
+                  "page": 1,
+                  "perPage": 5,
+                  "totalPages": 1,
+                  "data": [
+                    {
+                      "id": 1,
+                      "title": "Animal Farm",
+                      "genre": "Satire",
+                      "isbn": "9788535909553",
+                      "yearPublished": 1945,
+                      "isAvailable": true,
+                      "author": {
+                        "id": 1,
+                        "name": "George Orwell"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all books with filters and pagination",
+        "tags": [
+          "Book"
+        ]
+      }
+    },
+    "/api/v2/books/{id}": {
+      "get": {
+        "operationId": "BookController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Book ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with all the detailed information of the book",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 1,
+                  "title": "Animal Farm",
+                  "genre": "Satire",
+                  "authorId": 1,
+                  "isAvailable": true,
+                  "isbn": "9788535909553",
+                  "yearPublished": 1945,
+                  "createdAt": "2025-03-24T19:56:45.000Z",
+                  "updatedAt": "2025-03-24T19:56:45.000Z",
+                  "author": {
+                    "id": 1,
+                    "name": "George Orwell"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - book id 23 does not exist"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a single book with their detailed information",
+        "tags": [
+          "Book"
+        ]
+      },
+      "patch": {
+        "operationId": "BookController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Book ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Fields to update (optional)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePatchBookDTO"
+              },
+              "examples": {
+                "example1": {
+                  "summary": "Update title and genre",
+                  "value": {
+                    "title": "Animal Farm - New Edition",
+                    "genre": "Political Satire"
+                  }
+                },
+                "example2": {
+                  "summary": "Update ISBN",
+                  "value": {
+                    "isbn": "9780451526342"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Book successfully updated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 1,
+                  "title": "Animal Farm - New Edition",
+                  "genre": "Political Satire",
+                  "authorId": 1,
+                  "isbn": "9780451526342",
+                  "yearPublished": 1945,
+                  "createdAt": "2025-03-24T19:56:45.000Z",
+                  "updatedAt": "2025-03-24T20:29:30.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - book id 23 does not exist"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Optionally update book fields",
+        "tags": [
+          "Book"
+        ]
+      },
+      "delete": {
+        "operationId": "BookController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Book ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content - Book successfully deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - book id 55 does not exist"
+          },
+          "409": {
+            "description": "Conflict - this book is still on loan and cannot be deleted."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a single book",
+        "tags": [
+          "Book"
+        ]
+      }
+    },
+    "/api/v2/students": {
+      "post": {
+        "operationId": "StudentController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudentDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Student created successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 1,
+                  "name": "Alice Oliveira",
+                  "email": "alice.oliveira@email.com",
+                  "phone": "(11) 98765-4321",
+                  "academicRegistration": "2023123456789",
+                  "createdAt": "2025-03-24T20:49:45.000Z",
+                  "updatedAt": "2025-03-24T20:49:45.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Conflict - this student email or academic registry already exists",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "emailConflict": {
+                    "summary": "Email already exists",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "this student email already exists",
+                      "error": "Conflict"
+                    }
+                  },
+                  "academicRegistryConflict": {
+                    "summary": "Academic registry already exists",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "this student academic registry already exists",
+                      "error": "Conflict"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new student",
+        "tags": [
+          "Student"
+        ]
+      },
+      "get": {
+        "operationId": "StudentController_findAll",
+        "parameters": [
+          {
+            "name": "perPage",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 5
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1
+            }
+          },
+          {
+            "name": "orderDirection",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "name"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "ra",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2023123456789"
+            }
+          },
+          {
+            "name": "email",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "alice.oliveira@email.com"
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Alice Oliveira"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of students with pagination",
+            "content": {
+              "application/json": {
+                "example": {
+                  "total": 1,
+                  "page": 1,
+                  "perPage": 5,
+                  "totalPages": 1,
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "Alice Oliveira",
+                      "email": "alice.oliveira@email.com",
+                      "phone": "(11) 98765-4321",
+                      "academicRegistration": "2023123456789"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all students with filters and pagination",
+        "tags": [
+          "Student"
+        ]
+      }
+    },
+    "/api/v2/students/{id}": {
+      "get": {
+        "operationId": "StudentController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Student ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with all the detailed information of the student and his active loan (if he has a loan)",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "student-without-loan": {
+                    "summary": "Response when the student does not have an active loan",
+                    "value": {
+                      "id": 1,
+                      "name": "Alice Oliveira",
+                      "email": "alice.oliveira@email.com",
+                      "phone": "(11) 98765-4321",
+                      "academicRegistration": "2023123456789",
+                      "createdAt": "2025-03-24T20:49:45.000Z",
+                      "updatedAt": "2025-03-24T20:49:45.000Z",
+                      "activeLoan": null
+                    }
+                  },
+                  "student-with-loan": {
+                    "summary": "Response when the student has an active loan",
+                    "value": {
+                      "id": 1,
+                      "name": "Alice Oliveira",
+                      "email": "alice.oliveira@email.com",
+                      "phone": "(11) 98765-4321",
+                      "academicRegistration": "2023123456789",
+                      "createdAt": "2025-03-24T20:49:45.000Z",
+                      "updatedAt": "2025-03-24T20:49:45.000Z",
+                      "activeLoan": {
+                        "id": 1,
+                        "studentId": 1,
+                        "bookId": 1,
+                        "loanDate": "2025-03-25T20:48:16.000Z",
+                        "dueDate": "2025-03-30T00:00:00.000Z",
+                        "isActive": true,
+                        "returnDate": null,
+                        "createdAt": "2025-03-25T20:48:16.000Z",
+                        "updatedAt": "2025-03-25T20:48:16.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - student id 44 does not exist"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a single student with their detailed information",
+        "tags": [
+          "Student"
+        ]
+      },
+      "patch": {
+        "operationId": "StudentController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Student ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Fields to update (optional)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePatchStudentDTO"
+              },
+              "examples": {
+                "example": {
+                  "summary": "Update email and academic registration",
+                  "value": {
+                    "email": "alice.oliveira.souza@gmail.com",
+                    "academicRegistration": "2025123456899"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student successfully updated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 1,
+                  "name": "Alice Oliveira",
+                  "email": "alice.oliveira.souza@gmail.com",
+                  "phone": "(11) 98765-4321",
+                  "academicRegistration": "2025123456899",
+                  "createdAt": "2025-03-24T20:49:45.000Z",
+                  "updatedAt": "2025-03-25T20:48:12.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - student id 23 does not exist"
+          },
+          "409": {
+            "description": "Conflict - this student email or academic registry already exists",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "emailConflict": {
+                    "summary": "Email already exists",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "this student email already exists",
+                      "error": "Conflict"
+                    }
+                  },
+                  "academicRegistryConflict": {
+                    "summary": "Academic registry already exists",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "this student academic registry already exists",
+                      "error": "Conflict"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Optionally update student fields",
+        "tags": [
+          "Student"
+        ]
+      },
+      "delete": {
+        "operationId": "StudentController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Student ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content - Student successfully deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - student id 44 does not exist"
+          },
+          "409": {
+            "description": "Conflict - this student still has active loans and cannot be deleted."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a single student",
+        "tags": [
+          "Student"
+        ]
+      }
+    },
+    "/api/v2/loans": {
+      "post": {
+        "operationId": "LoanController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLoanDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Loan created successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 1,
+                  "studentId": 1,
+                  "bookId": 1,
+                  "loanDate": "2025-03-25T21:23:24.000Z",
+                  "dueDate": "2025-03-26T00:00:00.000Z",
+                  "isActive": true,
+                  "returnDate": null,
+                  "createdAt": "2025-03-25T21:23:24.000Z",
+                  "updatedAt": "2025-03-25T21:23:24.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - loan date must be greater than current date"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Conflict - this student already has an active loan or the book is already rented",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "bookConflict": {
+                    "summary": "Book already rented",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "this book is already rented",
+                      "error": "Conflict"
+                    }
+                  },
+                  "studentConflict": {
+                    "summary": "Student already has an active loan",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "this student already has an active loan",
+                      "error": "Conflict"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new loan",
+        "tags": [
+          "Loan"
+        ]
+      },
+      "get": {
+        "operationId": "LoanController_findAll",
+        "parameters": [
+          {
+            "name": "perPage",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 5
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1
+            }
+          },
+          {
+            "name": "orderDirection",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "loanDate",
+                "dueDate"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": true
+            }
+          },
+          {
+            "name": "loanDateLimit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2025-03-27"
+            }
+          },
+          {
+            "name": "loanDateStart",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2025-03-23"
+            }
+          },
+          {
+            "name": "bookId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1
+            }
+          },
+          {
+            "name": "studentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of all loans with pagination",
+            "content": {
+              "application/json": {
+                "example": {
+                  "total": 1,
+                  "page": 1,
+                  "perPage": 5,
+                  "totalPages": 1,
+                  "data": [
+                    {
+                      "id": 1,
+                      "loanDate": "2025-03-25T21:23:24.000Z",
+                      "dueDate": "2025-03-26T00:00:00.000Z",
+                      "isActive": true,
+                      "student": {
+                        "name": "Alice Oliveira",
+                        "academicRegistration": "2025123456899"
+                      },
+                      "book": {
+                        "title": "Animal Farm"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all loans with filters and pagination",
+        "tags": [
+          "Loan"
+        ]
+      }
+    },
+    "/api/v2/loans/{id}": {
+      "get": {
+        "operationId": "LoanController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Loan ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with all detailed loan information, including who rented it and the book rented",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 1,
+                  "loanDate": "2025-03-25T21:23:24.000Z",
+                  "dueDate": "2025-03-26T00:00:00.000Z",
+                  "isActive": true,
+                  "returnDate": null,
+                  "student": {
+                    "id": 1,
+                    "name": "Alice Oliveira",
+                    "email": "alice.oliveira.souza@hotmail.com",
+                    "academicRegistration": "2025123456899"
+                  },
+                  "book": {
+                    "id": 1,
+                    "title": "Animal Farm"
+                  },
+                  "createdAt": "2025-03-25T21:23:24.000Z",
+                  "updatedAt": "2025-03-25T21:23:24.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - loan id 34 does not exist"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a single loan with their detailed information",
+        "tags": [
+          "Loan"
+        ]
+      },
+      "delete": {
+        "operationId": "LoanController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Loan ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content - Loan successfully deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - loan id 44 does not exist"
+          },
+          "409": {
+            "description": "Conflict - this loan is active and cannot be deleted"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a single loan",
+        "tags": [
+          "Loan"
+        ]
+      }
+    },
+    "/api/v2/loans/{id}/return": {
+      "patch": {
+        "operationId": "LoanController_closeLoan",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Loan ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content - The loan was returned successfully."
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - loan id 34 does not exist"
+          },
+          "409": {
+            "description": "Conflict - this loan has already been returned"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Returns the loan",
+        "tags": [
+          "Loan"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Bibliotech API",
+    "description": "API documentation for University Library Management System",
+    "version": "2.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "UserLoginDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com",
+            "description": "User email address"
+          },
+          "password": {
+            "type": "string",
+            "example": "yourPassword123",
+            "description": "User password"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "CreateAuthorDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "George Orwell",
+            "description": "Author's full name"
+          },
+          "nationality": {
+            "type": "string",
+            "example": "Britânico",
+            "description": "Author's nationality"
+          },
+          "birthYear": {
+            "type": "number",
+            "example": 1903,
+            "description": "Year of birth of the author"
+          }
+        },
+        "required": [
+          "name",
+          "nationality",
+          "birthYear"
+        ]
+      },
+      "CreateBookDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Animal Farm",
+            "description": "Book title"
+          },
+          "authorId": {
+            "type": "number",
+            "example": "1",
+            "description": "Book author ID"
+          },
+          "genre": {
+            "type": "string",
+            "example": "Satire",
+            "description": "Main genre of the book"
+          },
+          "isbn": {
+            "type": "string",
+            "example": "9788535909553",
+            "description": "Book isbn registration"
+          },
+          "yearPublished": {
+            "type": "number",
+            "example": 1945,
+            "description": "Year the book was published"
+          }
+        },
+        "required": [
+          "title",
+          "authorId",
+          "genre",
+          "isbn",
+          "yearPublished"
+        ]
+      },
+      "UpdatePatchBookDTO": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateStudentDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Alice Oliveira",
+            "description": "Student's full name"
+          },
+          "email": {
+            "type": "string",
+            "example": "alice.oliveira@email.com",
+            "description": "Student's email"
+          },
+          "phone": {
+            "type": "string",
+            "example": "(11) 98765-4321",
+            "description": "Student's phone"
+          },
+          "academicRegistration": {
+            "type": "string",
+            "example": "2023123456789",
+            "description": "Student academic record"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "phone",
+          "academicRegistration"
+        ]
+      },
+      "UpdatePatchStudentDTO": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateLoanDTO": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "number",
+            "example": 1,
+            "description": "the ID of the student who is renting the book"
+          },
+          "bookId": {
+            "type": "number",
+            "example": 1,
+            "description": "the ID of the book being rented"
+          },
+          "dueDate": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2025-03-25",
+            "description": "the due date to return the loan"
+          }
+        },
+        "required": [
+          "studentId",
+          "bookId",
+          "dueDate"
+        ]
+      }
+    }
+  }
+}
