@@ -4,6 +4,8 @@ import { ValidationPipe } from '@nestjs/common'
 import { SeedService } from './modules/prisma/seed/seed.service'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ConfigService } from '@nestjs/config'
+import { writeFileSync } from 'fs'
+import { join } from 'path'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -40,7 +42,14 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config)
 
+  writeFileSync(
+    join(process.cwd(), 'swagger.json'),
+    JSON.stringify(document, null, 2),
+    { encoding: 'utf8' }
+  )
+
   SwaggerModule.setup('docs', app, document)
+
   const apiPort = configService.get<string>('PORT') || '3000'
   await app.listen(apiPort)
 }
