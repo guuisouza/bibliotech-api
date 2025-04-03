@@ -1,0 +1,24 @@
+export const booksListMock = [
+  {
+    id: 1,
+    title: 'Dom Casmurro',
+    genre: 'Romance',
+    isbn: '9788572325679',
+    yearPublished: 1899,
+    isAvailable: true,
+    author: { id: 1, name: 'Machado de Assis' },
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: 2,
+    title: '1984',
+    genre: 'Dystopian',
+    isbn: '9780451524935',
+    yearPublished: 1949,
+    isAvailable: false,
+    author: { id: 2, name: 'George Orwell' },
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }
+]
