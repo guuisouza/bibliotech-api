@@ -9,6 +9,8 @@ import { CreateBookDTO } from '../../src/modules/book/dto/create-book.dto'
 import { ConflictException, NotFoundException } from '@nestjs/common'
 import { FiltersQueryBookDTO } from '../../src/modules/book/dto/filters-query-book.dto'
 import { booksListMock } from '../mocks/book-service.mock'
+import { UpdatePatchBookDTO } from '../../src/modules/book/dto/update-patch-book.dto'
+import { Book } from '@prisma/client'
 
 describe('BookService', () => {
   let bookService: BookService
@@ -264,6 +266,147 @@ describe('BookService', () => {
 
       expect(bookService.checkIfBookExists).toHaveBeenCalledWith(nonExistentId)
       expect(prismaService.book.findUnique).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('update', () => {
+    const bookId = 1
+
+    const updateData: UpdatePatchBookDTO = {
+      title: 'Dom Casmurro (Edição Revisada)',
+      genre: 'Romance Clássico',
+      updatedAt: new Date()
+    }
+
+    const expectedUpdatedBook = {
+      ...booksListMock[0],
+      ...updateData
+    }
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    it('should update the book with provided fields and return the updated book', async () => {
+      jest.spyOn(bookService, 'checkIfBookExists').mockResolvedValue(undefined)
+      jest
+        .spyOn(prismaService.book, 'update')
+        .mockResolvedValue(expectedUpdatedBook as Book)
+
+      const result = await bookService.update(updateData, bookId)
+
+      expect(bookService.checkIfBookExists).toHaveBeenCalledWith(bookId)
+      expect(prismaService.book.update).toHaveBeenCalledWith({
+        where: { id: bookId },
+        data: {
+          title: updateData.title,
+          genre: updateData.genre,
+          updatedAt: expect.any(String)
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      })
+      expect(result).toEqual(expectedUpdatedBook)
+    })
+
+    it('should throw NotFoundException if book does not exist', async () => {
+      const nonExistentId = 45
+      jest
+        .spyOn(bookService, 'checkIfBookExists')
+        .mockRejectedValue(new NotFoundException())
+
+      await expect(
+        bookService.update(updateData, nonExistentId)
+      ).rejects.toThrow(NotFoundException)
+
+      expect(bookService.checkIfBookExists).toHaveBeenCalledWith(nonExistentId)
+      expect(prismaService.book.update).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('delete', () => {
+    it.skip('should delete a single book successfull', () => {})
+    it.skip('should throw ConflictException if book is still on loan', () => {})
+  })
+
+  describe('checkIfBookExists', () => {
+    const bookId = 1
+
+    it('should not throw if book exists', async () => {
+      jest
+        .spyOn(prismaService.book, 'findUnique')
+        .mockResolvedValue({ id: bookId } as Book)
+
+      await expect(bookService.checkIfBookExists(bookId)).resolves.not.toThrow()
+      expect(prismaService.book.findUnique).toHaveBeenCalledWith({
+        where: { id: bookId }
+      })
+    })
+
+    it('should throw NotFoundException if book does not exist', async () => {
+      jest.spyOn(prismaService.book, 'findUnique').mockResolvedValue(null)
+
+      await expect(bookService.checkIfBookExists(bookId)).rejects.toThrow(
+        new NotFoundException(`book id ${bookId} does not exist`)
+      )
+
+      expect(prismaService.book.findUnique).toHaveBeenCalledWith({
+        where: { id: bookId }
+      })
+    })
+  })
+
+  describe('checkIfBookIsRented', () => {
+    const bookId = 1
+    const isAvailable = true
+
+    it('should not throw if book is not rented', async () => {
+      jest
+        .spyOn(prismaService.book, 'findUnique')
+        .mockResolvedValue({ id: bookId } as Book)
+
+      await expect(
+        bookService.checkIfBookIsRented(bookId)
+      ).resolves.not.toThrow()
+      expect(prismaService.book.findUnique).toHaveBeenCalledWith({
+        where: {
+          id: bookId,
+          isAvailable
+        }
+      })
+    })
+
+    it('should throw NotFoundException if book is already rented', async () => {
+      jest.spyOn(prismaService.book, 'findUnique').mockResolvedValue(null)
+
+      await expect(bookService.checkIfBookIsRented(bookId)).rejects.toThrow(
+        new ConflictException('this book is already rented')
+      )
+      expect(prismaService.book.findUnique).toHaveBeenCalledWith({
+        where: { id: bookId, isAvailable }
+      })
+    })
+  })
+
+  describe('setBookAvailability', () => {
+    const bookId = 1
+    const isAvailable = false
+
+    it('should update the book availability status', async () => {
+      jest.spyOn(prismaService.book, 'update').mockResolvedValue(undefined)
+
+      await bookService.setBookAvailability(bookId, isAvailable)
+
+      expect(prismaService.book.update).toHaveBeenCalledWith({
+        where: { id: bookId },
+        data: { isAvailable }
+      })
     })
   })
 })
