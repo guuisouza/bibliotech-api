@@ -416,8 +416,66 @@ describe('Student Service', () => {
   })
 
   describe('delete', () => {
-    it.skip('should delete a single student successfully', async () => {})
-    it.skip('should throw ConflictException if student still has active loans', async () => {})
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    const studentId = 1
+
+    it('should delete a single student successfully', async () => {
+      jest
+        .spyOn(studentService, 'checkIfStudentExists')
+        .mockResolvedValue(undefined)
+      jest.spyOn(prismaService.loan, 'count').mockResolvedValue(0)
+
+      await expect(studentService.delete(studentId)).resolves.toBeUndefined()
+
+      expect(studentService.checkIfStudentExists).toHaveBeenCalledWith(
+        studentId
+      )
+      expect(prismaService.loan.count).toHaveBeenCalledWith({
+        where: { studentId, isActive: true }
+      })
+      expect(prismaService.student.delete).toHaveBeenCalledWith({
+        where: { id: studentId }
+      })
+    })
+
+    it('should throw ConflictException if student still has active loans', async () => {
+      jest
+        .spyOn(studentService, 'checkIfStudentExists')
+        .mockResolvedValue(undefined)
+      jest.spyOn(prismaService.loan, 'count').mockResolvedValue(1)
+
+      await expect(studentService.delete(studentId)).rejects.toThrow(
+        ConflictException
+      )
+
+      expect(studentService.checkIfStudentExists).toHaveBeenCalledWith(
+        studentId
+      )
+      expect(prismaService.loan.count).toHaveBeenCalledWith({
+        where: { studentId, isActive: true }
+      })
+      expect(prismaService.student.delete).not.toHaveBeenCalled()
+    })
+
+    it('should throw NotFoundException if student does not exist', async () => {
+      const nonExistentId = 134
+      jest
+        .spyOn(studentService, 'checkIfStudentExists')
+        .mockRejectedValue(new NotFoundException())
+
+      await expect(studentService.delete(nonExistentId)).rejects.toThrow(
+        NotFoundException
+      )
+
+      expect(studentService.checkIfStudentExists).toHaveBeenCalledWith(
+        nonExistentId
+      )
+      expect(prismaService.loan.count).not.toHaveBeenCalled()
+      expect(prismaService.student.delete).not.toHaveBeenCalled()
+    })
   })
 
   describe('checkIfStudentExists', () => {

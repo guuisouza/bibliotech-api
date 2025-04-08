@@ -331,8 +331,56 @@ describe('BookService', () => {
   })
 
   describe('delete', () => {
-    it.skip('should delete a single book successfull', () => {})
-    it.skip('should throw ConflictException if book is still on loan', () => {})
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    const bookId = 1
+
+    it('should delete a single book successfull', async () => {
+      jest.spyOn(bookService, 'checkIfBookExists').mockResolvedValue(undefined)
+      jest.spyOn(prismaService.loan, 'count').mockResolvedValue(0)
+
+      await expect(bookService.delete(bookId)).resolves.toBeUndefined()
+
+      expect(bookService.checkIfBookExists).toHaveBeenCalledWith(bookId)
+      expect(prismaService.loan.count).toHaveBeenCalledWith({
+        where: { bookId, isActive: true }
+      })
+      expect(prismaService.book.delete).toHaveBeenCalledWith({
+        where: { id: bookId }
+      })
+    })
+
+    it('should throw ConflictException if book is still on loan', async () => {
+      jest.spyOn(bookService, 'checkIfBookExists').mockResolvedValue(undefined)
+      jest.spyOn(prismaService.loan, 'count').mockResolvedValue(1)
+
+      await expect(bookService.delete(bookId)).rejects.toThrow(
+        ConflictException
+      )
+
+      expect(bookService.checkIfBookExists).toHaveBeenCalledWith(bookId)
+      expect(prismaService.loan.count).toHaveBeenCalledWith({
+        where: { bookId, isActive: true }
+      })
+      expect(prismaService.book.delete).not.toHaveBeenCalled()
+    })
+
+    it('should throw NotFoundException if book does not exist', async () => {
+      const nonExistentId = 134
+      jest
+        .spyOn(bookService, 'checkIfBookExists')
+        .mockRejectedValue(new NotFoundException())
+
+      await expect(bookService.delete(nonExistentId)).rejects.toThrow(
+        NotFoundException
+      )
+
+      expect(bookService.checkIfBookExists).toHaveBeenCalledWith(nonExistentId)
+      expect(prismaService.loan.count).not.toHaveBeenCalled()
+      expect(prismaService.book.delete).not.toHaveBeenCalled()
+    })
   })
 
   describe('checkIfBookExists', () => {
