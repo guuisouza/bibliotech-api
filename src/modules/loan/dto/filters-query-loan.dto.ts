@@ -11,12 +11,12 @@ export class FiltersQueryLoanDTO {
   @IsOptional()
   @IsNumber()
   @Transform(({ value }) => Number(value))
-  studentId: number
+  studentId?: number
 
   @IsOptional()
   @IsNumber()
   @Transform(({ value }) => Number(value))
-  bookId: number
+  bookId?: number
 
   @IsOptional()
   @IsDateString()
