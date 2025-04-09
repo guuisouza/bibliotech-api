@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common'
 import { AuthorService } from './author.service'
 import { CreateAuthorDTO } from './dto/create-author.dto'
-import { JwtAuthGuard } from 'src/guards/jwt-auth-guard'
+import { JwtAuthGuard } from '../../guards/jwt-auth-guard'
 import { FiltersQueryAuthorDTO } from './dto/filters-query-author.dto'
 import {
   ApiBearerAuth,
