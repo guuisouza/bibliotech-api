@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common'
 import { CreateLoanDTO } from './dto/create-loan.dto'
 import { LoanService } from './loan.service'
-import { JwtAuthGuard } from 'src/guards/jwt-auth-guard'
+import { JwtAuthGuard } from '../../guards/jwt-auth-guard'
 import { FiltersQueryLoanDTO } from './dto/filters-query-loan.dto'
 import {
   ApiBearerAuth,

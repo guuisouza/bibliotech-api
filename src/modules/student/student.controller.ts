@@ -14,7 +14,7 @@ import {
 import { StudentService } from './student.service'
 import { CreateStudentDTO } from './dto/create-student.dto'
 import { UpdatePatchStudentDTO } from './dto/update-patch-student.dto'
-import { JwtAuthGuard } from 'src/guards/jwt-auth-guard'
+import { JwtAuthGuard } from '../../guards/jwt-auth-guard'
 import { FiltersQueryStudentDTO } from './dto/filters-query-student.dto'
 import {
   ApiBearerAuth,
