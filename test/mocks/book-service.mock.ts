@@ -23,6 +23,21 @@ export const booksListMock = [
   }
 ]
 
+export const singleBookMock = {
+  id: 2,
+  title: '1984',
+  genre: 'Dystopian',
+  authorId: 2,
+  isbn: '9780451524935',
+  yearPublished: 1949,
+  createdAt: '2025-03-24T19:56:45.000Z',
+  updatedAt: '2025-03-24T19:56:45.000Z',
+  author: {
+    id: 2,
+    name: 'George Orwell'
+  }
+}
+
 export const mockBookService = {
   create: jest.fn(),
   findAll: jest.fn(),
