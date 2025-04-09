@@ -30,5 +30,8 @@ export const mockPrismaService = {
     findUnique: jest.fn(),
     update: jest.fn(),
     delete: jest.fn()
+  },
+  user: {
+    findUnique: jest.fn()
   }
 }
