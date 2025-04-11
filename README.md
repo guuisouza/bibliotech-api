@@ -1,32 +1,39 @@
-# Sistema de Biblioteca Universitária
+# Sistema de Biblioteca Universitária - BIBLIOTECH API 2.0
 
-Um simples sistema administrativo (fechado) back-end para a biblioteca da FATEC Franca construído com NestJS, Node, Express e TypeScript para a disciplina de Desenvolvimento Web III do curso de Desenvolvimento de Software Multiplataforma (3 Semestre)
+Um sistema administrativo back-end, fechado (apenas administradores) e objetivo, desenvolvido para gerenciar uma biblioteca universitária. Construído com NestJS, Node.js, Express e TypeScript, seguindo boas práticas de arquitetura e organização de código.
 
 ## Funcionalidades
 
 ### Funcionalidades Principais
 
-- Gerenciamento de Autores/Livros, Estudantes e Empréstimos (criar, visualizar, atualizar, deletar)
-- Processamento de Empréstimos (ativo/inativo)
-- Gerenciamento de livros disponíveis e emprestados
-- Histórico de empréstimos e devoluções
-- Validação de regras para prazos de devolução
+- Gerenciamento de Autores, Livros, Estudantes e Empréstimos (criar, visualizar, atualizar, deletar)
+- Empréstimo e devolução de livros com controle de status (ativo/inativo)
+- Verificação de disponibilidade de livros antes de realizar o empréstimo
+- Histórico de empréstimos e devoluções por estudante
+- Regras de negócio aplicadas, como prazos de devolução
+- Filtros de busca por título, gênero, ISBN, disponibilidade, ano de publicação, etc.
+- Paginação e ordenação por título ou ano de publicação nos endpoints de listagem
 
 ### Funcionalidades Técnicas
 
-- Manipulação de banco de dados com Prisma e MySQL
-- Uso do ORM Prisma para consultas eficientes
-- Padrão de desenvolvimento baseado em POO (Solicitado pelo professor)
-- Validação de dados com DTO
-- Tratamento de erros centralizado
+- Manipulação de banco de dados com PrismaORM e MySQL
+- Autenticação com JWT utilizando passport strategy
+- Seed para criação do usuário administrador padrão
+- Validação e transformação de dados com DTOs (utilizando class-validator e class-transformer)
+- Tratamento de erros centralizado no NestJS
+- Documentação interativa da API com Swagger
+- Testes automatizados com Jest (serviços e controllers)
+- Limite de taxa de requisições
+- Estrutura modular
 
-### Funcionalidades Futuras
+### Novidades EXCLUSIVAS da versão 2.0
 
-- Autenticação baseada em JWT
-- Criptografia de Senha (Apenas do ADMIN)
-- Registro detalhado de operações no sistema
-- Limitação de Taxa de Requisições
-- Implementação de um mecanismo de notificação via email para alunos em caso de prazo de devolução ultrapassado
+- Autenticação baseada em JWT utilizando passport strategy
+- Criptografia de Senha (Apenas do ADMIN) no banco de dados
+- Mais campos detalhados em todas as tabelas (Ex: Adicionado ISBN para os livros)
+- Buscas páginadas e com novos filtros
+- Proteção contra ataques de força bruta (Limite de taxa de requisições por minuto)
+- Testes unitários automatizados de todos as funções em serviços e controllers
 - Documentação completa da API com Swagger
 
 ## Stack Tecnológica
@@ -79,19 +86,44 @@ npm run dev
 
 ## Configuração de Ambiente
 
-Variáveis de ambiente principais:
+Certifique-se de configurar seu .env com estas variáveis de ambiente principais:
 
 ```env
-# Aplicação
+# APLICAÇÃO
 PORT=3000
 
-# Banco de Dados
-DATABASE_URL="mysql://<usuário>:<senha>@<host>:<porta>/<nome_do_database>"
+# BANCO DE DADOS
+DATABASE_URL="YOUR DATABASE URL..."
+
+# AUTENTICAÇÃO
+SEED_USER_NAME="YOUR_SYSTEM_USERNAME..."
+SEED_USER_EMAIL="YOUR_SYSTEM_USER_EMAIL..."
+SEED_USER_PASSWORD="YOUR_SYSTEM_USER_PASSWORD..."
+JWT_SECRET_KEY="YOUR_SECRET_KEY"
+EXPIRES_IN='EXPIRES_TIME'
+
+# CORS Configuração Examplo
+# Defina seus domínios permitidos para acesso CORS. Exemplo:
+CORS_ORIGIN="http://localhost:3003,http://example.com"
+# Defina os métodos HTTP permitidos para CORS. Exemplo:
+CORS_METHODS="GET,POST,PUT,DELETE,PATCH,OPTIONS"
+# Defina os cabeçalhos permitidos para CORS. Exemplo:
+CORS_ALLOWED_HEADERS="Content-Type,Authorization,Accept"
+# Defina os cabeçalhos expostos para CORS. Exemplo:
+CORS_EXPOSED_HEADERS="Content-Range,X-Content-Range"
+# Defina se o CORS permite credenciais (cookies, etc.). Exemplo:
+CORS_CREDENTIALS=true
+# Defina o tempo de cache do CORS (em segundos). Exemplo:
+CORS_MAX_AGE=3600
+
+# API Rate Limit
+THROTTLE_TTL=10000
+THROTTLE_LIMIT=60
 ```
 
 ## Documentação da API
 
-A documentação da API estará disponível via Swagger UI em futuras versões
+Para acessar a documentação interativa da BibliotechAPI via Swagger clique [aqui](https://bibliotech-api-swagger.vercel.app/)
 
 ### Endpoints Principais
 
@@ -123,21 +155,36 @@ A documentação da API estará disponível via Swagger UI em futuras versões
 - `POST /loans` - Registrar um empréstimo
 - `GET /loans` - Consultar todos os empréstimos (?available=true/false para consultar empréstimos ativos/inativos)
 - `GET /loans/:loanId` - Consultar empréstimo detalhadamente
-- `PATCH /loans/:loanId/return` - Realizar a devolução do empréstimo
+- `PATCH /loans/:loanId/return` - Realizar a devolução do empréstimo (ao mesmo tempo libera o livro e estudante para fazer um novo empréstimo)
 - `DELETE /loans/:loanId` - Excluir um empréstimo
 
 ## Testes
 
-Será implementado no futuro
+### Testes Unitários
+
+```bash
+npm run test
+```
 
 ## Arquitetura
 
 ### Esquema do Banco de Dados
 
+#### Tabela users (admin seed)
+
+- id (int)
+- username
+- email
+- password
+- createdAt
+- updatedAt
+
 #### Tabela authors
 
 - id (int)
 - name
+- birthYear
+- nationality
 - createdAt
 - updatedAt
 
@@ -145,8 +192,11 @@ Será implementado no futuro
 
 - id (int)
 - title
+- genre
+- isbn
+- yearPublished
 - authorId (Foreign Key)
-- available (padrão true)
+- isAvailable (padrão true)
 - createdAt
 - updatedAt
 
@@ -156,7 +206,7 @@ Será implementado no futuro
 - name
 - email (único)
 - phone
-- academicRegistration
+- academicRegistration (único)
 - createdAt
 - updatedAt
 
