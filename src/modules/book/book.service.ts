@@ -119,7 +119,11 @@ export class BookService {
 
     const dataToUpdate = {}
 
-    if (data.title) {
+    if (data.title && data.title.trim() !== '') {
+      const titleExists = await this.findBookByTitle(data.title)
+      if (titleExists && titleExists.id !== id) {
+        throw new ConflictException('this book already exists')
+      }
       dataToUpdate['title'] = data.title
     }
 
@@ -128,11 +132,15 @@ export class BookService {
       dataToUpdate['authorId'] = data.authorId
     }
 
-    if (data.genre) {
+    if (data.genre && data.genre.trim() !== '') {
       dataToUpdate['genre'] = data.genre
     }
 
-    if (data.isbn) {
+    if (data.isbn && data.isbn.trim() !== '') {
+      const isbnExists = await this.findBookByIsbn(data.isbn)
+      if (isbnExists && isbnExists.id !== id) {
+        throw new ConflictException('this book isbn already exists')
+      }
       dataToUpdate['isbn'] = data.isbn
     }
 
@@ -211,6 +219,18 @@ export class BookService {
       data: {
         isAvailable
       }
+    })
+  }
+
+  async findBookByTitle(title: string) {
+    return this.prisma.book.findFirst({
+      where: { title }
+    })
+  }
+
+  async findBookByIsbn(isbn: string) {
+    return this.prisma.book.findFirst({
+      where: { isbn }
     })
   }
 }
