@@ -100,7 +100,7 @@ export class StudentService {
 
     if (data.email && data.email.trim() !== '') {
       const emailExists = await this.findByEmail(data.email)
-      if (emailExists) {
+      if (emailExists && emailExists.id !== id) {
         throw new ConflictException('this student email already exists')
       }
       dataToUpdate['email'] = data.email
@@ -114,7 +114,7 @@ export class StudentService {
       const raExists = await this.findByAcademicRegistration(
         data.academicRegistration
       )
-      if (raExists) {
+      if (raExists && raExists.id !== id) {
         throw new ConflictException(
           'this student academic registry already exists'
         )
