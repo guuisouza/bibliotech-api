@@ -8,7 +8,7 @@ import { mockAuthorService } from '../mocks/author-service.mock'
 import { CreateBookDTO } from '../../src/modules/book/dto/create-book.dto'
 import { ConflictException, NotFoundException } from '@nestjs/common'
 import { FiltersQueryBookDTO } from '../../src/modules/book/dto/filters-query-book.dto'
-import { booksListMock } from '../mocks/book-service.mock'
+import { bookMock, booksListMock } from '../mocks/book-service.mock'
 import { UpdatePatchBookDTO } from '../../src/modules/book/dto/update-patch-book.dto'
 import { Book } from '@prisma/client'
 
@@ -455,6 +455,36 @@ describe('BookService', () => {
         where: { id: bookId },
         data: { isAvailable }
       })
+    })
+  })
+
+  describe('findBookByTitle', () => {
+    it('should return the book with the given title', async () => {
+      jest.spyOn(prismaService.book, 'findFirst').mockResolvedValue(bookMock)
+
+      const title = '1984'
+
+      const result = await bookService.findBookByTitle(title)
+
+      expect(prismaService.book.findFirst).toHaveBeenCalledWith({
+        where: { title }
+      })
+      expect(result).toEqual(bookMock)
+    })
+  })
+
+  describe('findBookByIsbn', () => {
+    it('should return the book with the given isbn', async () => {
+      jest.spyOn(prismaService.book, 'findFirst').mockResolvedValue(bookMock)
+
+      const isbn = '9780451524935'
+
+      const result = await bookService.findBookByIsbn(isbn)
+
+      expect(prismaService.book.findFirst).toHaveBeenCalledWith({
+        where: { isbn }
+      })
+      expect(result).toEqual(bookMock)
     })
   })
 })

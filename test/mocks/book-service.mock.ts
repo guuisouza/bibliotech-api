@@ -38,6 +38,18 @@ export const singleBookMock = {
   }
 }
 
+export const bookMock = {
+  id: 1,
+  title: '1984',
+  genre: 'Dystopian',
+  authorId: 1,
+  isAvailable: true,
+  isbn: '9780451524935',
+  yearPublished: 1949,
+  createdAt: new Date(),
+  updatedAt: new Date()
+}
+
 export const mockBookService = {
   create: jest.fn(),
   findAll: jest.fn(),
@@ -46,5 +58,7 @@ export const mockBookService = {
   delete: jest.fn(),
   checkIfBookExists: jest.fn(),
   checkIfBookIsRented: jest.fn(),
-  setBookAvailability: jest.fn()
+  setBookAvailability: jest.fn(),
+  findBookByTitle: jest.fn(),
+  findBookByIsbn: jest.fn()
 }
