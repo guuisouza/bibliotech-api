@@ -62,7 +62,8 @@ cd bibliotech-api
 npm install
 ```
 
-3. Configuração do Banco de Dados: Certifique-se de que você tenha um banco de dados MySQL criado. Crie o arquivo .env com suas credenciais de banco de dados seguindo o seguinte formato:
+3. Configuração do Banco de Dados: Certifique-se de que você tenha seu banco criado antecipadamente.
+   Usando o git bash (não o terminal comum do windows) crie o arquivo .env com suas credenciais de banco de dados seguindo o seguinte formato:
 
 ```bash
 cp .env.example .env
@@ -75,10 +76,12 @@ DATABASE_URL="mysql://<usuário>:<senha>@<host>:<porta>/<nome_do_database>"
 4. Execute as migrações do prisma para criar as tabelas:
 
 ```bash
+npx prisma generate deploy
+
 npx prisma migrate deploy
 ```
 
-5. Inicie a aplicação:
+5. Após configurar suas váriaveis de ambiente no .env, inicie a aplicação:
 
 ```bash
 npm run dev
