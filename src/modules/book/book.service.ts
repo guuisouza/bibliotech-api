@@ -8,6 +8,8 @@ import { CreateBookDTO } from './dto/create-book.dto'
 import { AuthorService } from '../author/author.service'
 import { UpdatePatchBookDTO } from './dto/update-patch-book.dto'
 import { FiltersQueryBookDTO } from './dto/filters-query-book.dto'
+import { AddBookInventoryDTO } from './dto/add-book-inventory.dto'
+import { RemoveBookInventoryDTO } from './dto/remove-book-inventory.dto'
 
 @Injectable()
 export class BookService {
@@ -23,13 +25,19 @@ export class BookService {
       }
     })
 
-    if (existingBook > 0) {
-      throw new ConflictException('book already exists')
+    const isbnExists = await this.findBookByIsbn(data.isbn)
+    if (existingBook > 0 || isbnExists) {
+      throw new ConflictException('this book already exists')
     }
 
     await this.authorService.checkIfAuthorExists(data.authorId)
 
-    return this.prisma.book.create({ data })
+    return this.prisma.book.create({
+      data: {
+        ...data,
+        availableQuantity: data.totalQuantity
+      }
+    })
   }
 
   async findAll(filters: FiltersQueryBookDTO) {
@@ -46,19 +54,26 @@ export class BookService {
       perPage
     } = filters
 
+    const whereClause = {
+      title: title ? { contains: title } : undefined,
+      genre: genre ? { contains: genre } : undefined,
+      isbn: isbn ? { equals: isbn } : undefined,
+      availableQuantity:
+        isAvailable === true
+          ? { gt: 0 }
+          : isAvailable === false
+            ? { equals: 0 }
+            : undefined,
+      yearPublished: {
+        gte: yearPublishedAfter,
+        lte: yearPublishedBefore
+      }
+    }
+
     const books = await this.prisma.book.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
-      where: {
-        title: title ? { contains: title } : undefined,
-        genre: genre ? { contains: genre } : undefined,
-        isbn: isbn ? { equals: isbn } : undefined,
-        isAvailable,
-        yearPublished: {
-          gte: yearPublishedAfter,
-          lte: yearPublishedBefore
-        }
-      },
+      where: whereClause,
       orderBy: orderBy ? { [orderBy]: orderDirection } : undefined,
       select: {
         id: true,
@@ -66,7 +81,7 @@ export class BookService {
         genre: true,
         isbn: true,
         yearPublished: true,
-        isAvailable: true,
+        availableQuantity: true,
         author: {
           select: {
             id: true,
@@ -77,16 +92,7 @@ export class BookService {
     })
 
     const total = await this.prisma.book.count({
-      where: {
-        title: title ? { contains: title } : undefined,
-        genre: genre ? { contains: genre } : undefined,
-        yearPublished: {
-          gte: yearPublishedAfter,
-          lte: yearPublishedBefore
-        },
-        isbn: isbn ? { equals: isbn } : undefined,
-        isAvailable
-      }
+      where: whereClause
     })
 
     return {
@@ -200,28 +206,6 @@ export class BookService {
     }
   }
 
-  async checkIfBookIsRented(id: number) {
-    const book = await this.prisma.book.findUnique({
-      where: {
-        id,
-        isAvailable: true
-      }
-    })
-
-    if (!book) {
-      throw new ConflictException('this book is already rented')
-    }
-  }
-
-  async setBookAvailability(id: number, isAvailable: boolean) {
-    await this.prisma.book.update({
-      where: { id },
-      data: {
-        isAvailable
-      }
-    })
-  }
-
   async findBookByTitle(title: string) {
     return this.prisma.book.findFirst({
       where: { title }
@@ -232,5 +216,45 @@ export class BookService {
     return this.prisma.book.findFirst({
       where: { isbn }
     })
+  }
+
+  async addBooksToInventory(id: number, data: AddBookInventoryDTO) {
+    await this.checkIfBookExists(id)
+
+    const updatedValues = await this.prisma.book.update({
+      where: { id },
+      data: {
+        totalQuantity: { increment: data.amount },
+        availableQuantity: { increment: data.amount }
+      }
+    })
+
+    return updatedValues
+  }
+
+  async removeBooksToInventory(id: number, data: RemoveBookInventoryDTO) {
+    const book = await this.prisma.book.findUnique({
+      where: { id }
+    })
+
+    if (!book) {
+      throw new NotFoundException(`book id ${id} does not exist`)
+    }
+
+    if (data.amount > book.availableQuantity) {
+      throw new ConflictException(
+        `cannot remove more than ${book.availableQuantity} available books`
+      )
+    }
+
+    const updatedValues = await this.prisma.book.update({
+      where: { id },
+      data: {
+        totalQuantity: { decrement: data.amount },
+        availableQuantity: { decrement: data.amount }
+      }
+    })
+
+    return updatedValues
   }
 }
