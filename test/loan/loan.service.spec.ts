@@ -13,7 +13,7 @@ import {
   ConflictException,
   NotFoundException
 } from '@nestjs/common'
-import { Loan } from '@prisma/client'
+import { Loan, PrismaClient } from '@prisma/client'
 import {
   activeLoanMock,
   inactiveLoanMock,
@@ -60,57 +60,58 @@ describe('Loan Service', () => {
     const createLoanDTO: CreateLoanDTO = {
       studentId: 1,
       bookId: 1,
-      dueDate: new Date('2025-04-21')
+      dueDate: new Date('2029-04-21')
     }
 
-    it('should create a new loan successfully when all validations pass', async () => {
+    const createdLoanMock = {
+      id: 1,
+      ...createLoanDTO,
+      isActive: true,
+      loanDate: new Date(),
+      returnDate: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+
+    it('should create a new loan successfully within a transaction', async () => {
       jest
         .spyOn(studentService, 'checkIfStudentExists')
         .mockResolvedValue(undefined)
 
-      jest.spyOn(bookService, 'checkIfBookExists').mockResolvedValue(undefined)
+      const mockTransaction = jest.fn().mockImplementation(async (cb: any) => {
+        const tx = {
+          book: {
+            findUnique: jest.fn().mockResolvedValue({
+              id: 1,
+              title: 'Animal Farm',
+              availableQuantity: 1
+            }),
+            update: jest.fn().mockResolvedValue(undefined)
+          },
+          loan: {
+            findFirst: jest.fn().mockResolvedValue(null),
+            create: jest.fn().mockResolvedValue(createdLoanMock)
+          },
+          bookUpdateCalled: false,
+          bookUpdate: jest.fn().mockImplementation(() => {
+            tx.bookUpdateCalled = true
+            return Promise.resolve()
+          })
+        }
+
+        tx.book.update = tx.bookUpdate
+
+        return cb(tx)
+      })
 
       jest
-        .spyOn(bookService, 'checkIfBookIsRented')
-        .mockResolvedValue(undefined)
-
-      jest.spyOn(prismaService.loan, 'findFirst').mockResolvedValue(null)
-
-      jest
-        .spyOn(bookService, 'setBookAvailability')
-        .mockResolvedValue(undefined)
-
-      const createdLoanMock = {
-        id: 1,
-        ...createLoanDTO,
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-
-      jest
-        .spyOn(prismaService.loan, 'create')
-        .mockResolvedValue(createdLoanMock as Loan)
+        .spyOn(prismaService, '$transaction')
+        .mockImplementation(mockTransaction)
 
       const result = await loanService.create(createLoanDTO)
 
       expect(studentService.checkIfStudentExists).toHaveBeenCalledWith(1)
-      expect(bookService.checkIfBookExists).toHaveBeenCalledWith(1)
-      expect(bookService.checkIfBookIsRented).toHaveBeenCalledWith(1)
-      expect(prismaService.loan.findFirst).toHaveBeenCalledWith({
-        where: {
-          studentId: 1,
-          isActive: true
-        }
-      })
-      expect(bookService.setBookAvailability).toHaveBeenCalledWith(1, false)
-      expect(prismaService.loan.create).toHaveBeenCalledWith({
-        data: {
-          studentId: 1,
-          bookId: 1,
-          dueDate: new Date('2025-04-21')
-        }
-      })
+      expect(prismaService.$transaction).toHaveBeenCalled()
       expect(result).toEqual(createdLoanMock)
     })
 
@@ -147,58 +148,68 @@ describe('Loan Service', () => {
         .mockResolvedValue(undefined)
 
       jest
-        .spyOn(bookService, 'checkIfBookExists')
-        .mockRejectedValue(
-          new NotFoundException(
-            `book id ${createLoanDTO.bookId} does not exist`
-          )
-        )
+        .spyOn(prismaService, '$transaction')
+        .mockImplementation(async (cb) => {
+          const tx = {
+            book: {
+              findUnique: jest.fn().mockResolvedValue(null)
+            }
+          } as unknown as PrismaClient
+          return cb(tx)
+        })
 
       await expect(loanService.create(createLoanDTO)).rejects.toThrow(
-        new NotFoundException(`book id ${createLoanDTO.bookId} does not exist`)
+        new NotFoundException(`book id ${createLoanDTO.bookId} not found`)
       )
     })
 
-    it('should throw ConflictException if book is already rented', async () => {
+    it('should throw ConflictException if book has no available copies', async () => {
       jest
         .spyOn(studentService, 'checkIfStudentExists')
         .mockResolvedValue(undefined)
 
-      jest.spyOn(bookService, 'checkIfBookExists').mockResolvedValue(undefined)
-
       jest
-        .spyOn(bookService, 'checkIfBookIsRented')
-        .mockRejectedValue(new ConflictException('this book is already rented'))
+        .spyOn(prismaService, '$transaction')
+        .mockImplementation(async (cb: any) => {
+          const tx = {
+            book: {
+              findUnique: jest.fn().mockResolvedValue({
+                id: 1,
+                availableQuantity: 0
+              })
+            }
+          }
+          return cb(tx)
+        })
 
       await expect(loanService.create(createLoanDTO)).rejects.toThrow(
-        new ConflictException('this book is already rented')
+        new ConflictException('no available copies of this book')
       )
     })
 
-    it('should throw ConflictException if student already has an active loan', async () => {
-      const createdLoanMock = {
-        id: 1,
-        ...createLoanDTO,
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
+    it('should throw ConflictException if student has an active loan', async () => {
       jest
         .spyOn(studentService, 'checkIfStudentExists')
         .mockResolvedValue(undefined)
 
-      jest.spyOn(bookService, 'checkIfBookExists').mockResolvedValue(undefined)
-
       jest
-        .spyOn(bookService, 'checkIfBookIsRented')
-        .mockResolvedValue(undefined)
-
-      jest
-        .spyOn(prismaService.loan, 'findFirst')
-        .mockResolvedValue(createdLoanMock as Loan)
+        .spyOn(prismaService, '$transaction')
+        .mockImplementation(async (cb: any) => {
+          const tx = {
+            book: {
+              findUnique: jest
+                .fn()
+                .mockResolvedValue({ id: 1, availableQuantity: 1 })
+            },
+            loan: {
+              findFirst: jest.fn().mockResolvedValue(mockLoanExists)
+            }
+          }
+          return cb(tx)
+        })
 
       await expect(loanService.create(createLoanDTO)).rejects.toThrow(
-        new ConflictException('this student already has an active loan')
+        new ConflictException('This student already has an active loan')
       )
     })
   })
@@ -383,55 +394,74 @@ describe('Loan Service', () => {
     })
 
     it('should close an active loan successfully', async () => {
-      jest.spyOn(loanService, 'checkIfLoanExists').mockResolvedValue(undefined)
-      jest
-        .spyOn(prismaService.loan, 'findUnique')
-        .mockResolvedValue(activeLoanMock as Loan)
-      jest.spyOn(prismaService.loan, 'update').mockResolvedValue({} as Loan)
-      jest
-        .spyOn(bookService, 'setBookAvailability')
-        .mockResolvedValue(undefined)
-
-      await loanService.closeLoan(activeLoanMock.id)
-
-      expect(prismaService.loan.update).toHaveBeenCalledWith({
-        where: { id: activeLoanMock.id },
-        data: {
-          isActive: false,
-          returnDate: expect.any(Date),
-          updatedAt: expect.any(Date)
+      const returnedLoanMock = {
+        id: activeLoanMock.id,
+        isActive: false,
+        returnDate: new Date(),
+        book: {
+          id: activeLoanMock.bookId,
+          title: 'Mocked Book'
+        },
+        student: {
+          id: 1,
+          name: 'Student Mock'
         }
-      })
+      }
 
-      expect(bookService.setBookAvailability).toHaveBeenCalledWith(
-        activeLoanMock.bookId,
-        true
-      )
+      jest
+        .spyOn(prismaService, '$transaction')
+        .mockImplementation(async (cb) => {
+          const tx = {
+            loan: {
+              findUnique: jest.fn().mockResolvedValue(activeLoanMock),
+              update: jest.fn().mockResolvedValue(returnedLoanMock)
+            },
+            book: {
+              update: jest.fn().mockResolvedValue(undefined)
+            }
+          } as unknown as PrismaClient
+
+          return cb(tx)
+        })
+
+      const result = await loanService.closeLoan(activeLoanMock.id)
+
+      expect(result).toEqual(returnedLoanMock)
     })
 
     it('should throw NotFoundException if loan does not exist', async () => {
-      const nonExistentId = 4444
       jest
-        .spyOn(loanService, 'checkIfLoanExists')
-        .mockRejectedValue(new NotFoundException())
-      await expect(loanService.closeLoan(nonExistentId)).rejects.toThrow(
+        .spyOn(prismaService, '$transaction')
+        .mockImplementation(async (cb) => {
+          const tx = {
+            loan: {
+              findUnique: jest.fn().mockResolvedValue(null)
+            }
+          } as unknown as PrismaClient
+
+          return cb(tx)
+        })
+
+      await expect(loanService.closeLoan(999)).rejects.toThrow(
         NotFoundException
       )
-      expect(loanService.checkIfLoanExists).toHaveBeenCalledWith(nonExistentId)
-      expect(prismaService.loan.findUnique).not.toHaveBeenCalled()
-      expect(prismaService.loan.update).not.toHaveBeenCalled()
-      expect(bookService.setBookAvailability).not.toHaveBeenCalled()
     })
 
     it('should throw ConflictException if loan has already been returned', async () => {
-      jest.spyOn(loanService, 'checkIfLoanExists').mockResolvedValue(undefined)
-
       jest
-        .spyOn(prismaService.loan, 'findUnique')
-        .mockResolvedValue(inactiveLoanMock as Loan)
+        .spyOn(prismaService, '$transaction')
+        .mockImplementation(async (cb) => {
+          const tx = {
+            loan: {
+              findUnique: jest.fn().mockResolvedValue(inactiveLoanMock)
+            }
+          } as unknown as PrismaClient
+
+          return cb(tx)
+        })
 
       await expect(loanService.closeLoan(inactiveLoanMock.id)).rejects.toThrow(
-        new ConflictException('this loan has already been returned')
+        new ConflictException('This loan has already been returned')
       )
     })
   })

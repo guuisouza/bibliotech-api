@@ -1,4 +1,5 @@
 export const mockPrismaService = {
+  $transaction: jest.fn(),
   author: {
     count: jest.fn(),
     create: jest.fn(),
