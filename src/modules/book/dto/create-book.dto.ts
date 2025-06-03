@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -65,4 +66,16 @@ export class CreateBookDTO {
     message: 'the published year must be less than the current year'
   })
   yearPublished: number
+
+  @ApiProperty({
+    example: 10,
+    description: 'Quantity of this book in inventory'
+  })
+  @IsNotEmpty()
+  @IsInt()
+  @Min(1, {
+    message:
+      'the total quantity of this book in inventory must be greater than 0'
+  })
+  totalQuantity: number
 }
