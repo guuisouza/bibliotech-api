@@ -24,6 +24,8 @@ import {
   ApiQuery,
   ApiResponse
 } from '@nestjs/swagger'
+import { AddBookInventoryDTO } from './dto/add-book-inventory.dto'
+import { RemoveBookInventoryDTO } from './dto/remove-book-inventory.dto'
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -40,7 +42,7 @@ export class BookController {
       title: 'Animal Farm',
       genre: 'Satire',
       authorId: 1,
-      isAvailable: true,
+      totalQuantity: 7,
       isbn: '9788535909553',
       yearPublished: 1945,
       createdAt: '2025-03-24T19:56:45.000Z',
@@ -100,7 +102,7 @@ export class BookController {
           genre: 'Satire',
           isbn: '9788535909553',
           yearPublished: 1945,
-          isAvailable: true,
+          availableQuantity: 7,
           author: {
             id: 1,
             name: 'George Orwell'
@@ -136,7 +138,8 @@ export class BookController {
       title: 'Animal Farm',
       genre: 'Satire',
       authorId: 1,
-      isAvailable: true,
+      totalQuantity: 7,
+      availableQuantity: 7,
       isbn: '9788535909553',
       yearPublished: 1945,
       createdAt: '2025-03-24T19:56:45.000Z',
@@ -247,5 +250,71 @@ export class BookController {
   @HttpCode(204)
   async delete(@Param('id', ParseIntPipe) id: number) {
     return this.bookService.delete(id)
+  }
+
+  @ApiOperation({
+    summary: 'Adds a desired amount of new copies of books to the inventory '
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Book ID',
+    example: 1
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Quantity was successfully increased',
+    example: {
+      id: 1,
+      title: 'Animal Farm',
+      genre: 'Satire',
+      authorId: 1,
+      totalQuantity: 8,
+      availableQuantity: 8,
+      isbn: '9788535909553',
+      yearPublished: 1945,
+      createdAt: '2025-03-24T19:56:45.000Z',
+      updatedAt: '2025-03-24T19:56:45.000Z'
+    }
+  })
+  @Post(':id/add-inventory')
+  async addBookInventory(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: AddBookInventoryDTO
+  ) {
+    return this.bookService.addBooksToInventory(id, data)
+  }
+
+  @ApiOperation({
+    summary: 'Removes a desired amount of copies of books to the inventory '
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Book ID',
+    example: 1
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Quantity was successfully decreased',
+    example: {
+      id: 1,
+      title: 'Animal Farm',
+      genre: 'Satire',
+      authorId: 1,
+      totalQuantity: 7,
+      availableQuantity: 7,
+      isbn: '9788535909553',
+      yearPublished: 1945,
+      createdAt: '2025-03-24T19:56:45.000Z',
+      updatedAt: '2025-03-24T19:56:45.000Z'
+    }
+  })
+  @Post(':id/remove-inventory')
+  async removeBookInventory(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: RemoveBookInventoryDTO
+  ) {
+    return this.bookService.removeBooksToInventory(id, data)
   }
 }
