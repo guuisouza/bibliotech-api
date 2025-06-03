@@ -8,67 +8,70 @@ datasource db {
 }
 
 model Author {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt
-  name      String   @db.VarChar(90)
-  nationality String @db.VarChar(30)
-  birthYear Int
-  createdAt DateTime @default(now()) @db.Timestamp(0)
-  updatedAt DateTime @default(now()) @db.Timestamp(0)
-  books      Book[]
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  name        String   @db.VarChar(90)
+  nationality String   @db.VarChar(30)
+  birthYear   Int
+  createdAt   DateTime @default(now()) @db.Timestamp(0)
+  updatedAt   DateTime @default(now()) @db.Timestamp(0)
+  books       Book[]
 
   @@map("authors")
 }
 
 model Book {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt
-  title     String   @db.VarChar(250)
-  genre         String   @db.VarChar(50)
-  authorId      Int      @db.UnsignedInt
-  isAvailable   Boolean  @default(true)
-  isbn          String   @db.VarChar(25)
-  yearPublished Int
-  createdAt DateTime @default(now()) @db.Timestamp(0)
-  updatedAt DateTime @default(now()) @db.Timestamp(0)
+  id                Int      @id @default(autoincrement()) @db.UnsignedInt
+  title             String   @db.VarChar(250)
+  genre             String   @db.VarChar(50)
+  authorId          Int      @db.UnsignedInt
+  totalQuantity     Int
+  availableQuantity Int
+  isbn              String   @unique() @db.VarChar(25)
+  yearPublished     Int
+  createdAt         DateTime @default(now()) @db.Timestamp(0)
+  updatedAt         DateTime @default(now()) @db.Timestamp(0)
 
-  author Author      @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  author Author @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  Loan   Loan[]
+
   @@map("books")
-  Loan Loan[]
 }
 
 model Student {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt
-  name      String   @db.VarChar(90)
-  email     String   @db.VarChar(90) @unique()
-  phone     String   @db.VarChar(15)
-  academicRegistration  String @db.VarChar(13) @unique()
-  createdAt DateTime @default(now()) @db.Timestamp(0)
-  updatedAt DateTime @default(now()) @db.Timestamp(0)
+  id                   Int      @id @default(autoincrement()) @db.UnsignedInt
+  name                 String   @db.VarChar(90)
+  email                String   @unique() @db.VarChar(90)
+  phone                String   @db.VarChar(15)
+  academicRegistration String   @unique() @db.VarChar(13)
+  createdAt            DateTime @default(now()) @db.Timestamp(0)
+  updatedAt            DateTime @default(now()) @db.Timestamp(0)
+  Loan                 Loan[]
 
   @@map("students")
-  Loan Loan[]
 }
 
 model Loan {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt
-  studentId Int      @db.UnsignedInt
-  bookId    Int      @db.UnsignedInt
-  loanDate  DateTime @default(now()) @db.Timestamp(0)
-  dueDate   DateTime @db.Timestamp(0)
-  isActive Boolean   @default(true)
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  studentId  Int       @db.UnsignedInt
+  bookId     Int       @db.UnsignedInt
+  loanDate   DateTime  @default(now()) @db.Timestamp(0)
+  dueDate    DateTime  @db.Timestamp(0)
+  isActive   Boolean   @default(true)
   returnDate DateTime? @db.Timestamp(0)
-  createdAt DateTime @default(now()) @db.Timestamp(0)
-  updatedAt DateTime @default(now()) @db.Timestamp(0)
+  createdAt  DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt  DateTime  @default(now()) @db.Timestamp(0)
 
-  book Book    @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  student Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  book    Book    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
   @@map("loans")
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  username String @unique
-  email String @unique
-  password String
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @db.Timestamp(0)
 
