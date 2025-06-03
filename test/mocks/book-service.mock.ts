@@ -1,14 +1,12 @@
-export const booksListMock = [
+export const booksfindAllListMock = [
   {
     id: 1,
     title: 'Dom Casmurro',
     genre: 'Romance',
     isbn: '9788572325679',
     yearPublished: 1899,
-    isAvailable: true,
-    author: { id: 1, name: 'Machado de Assis' },
-    createdAt: new Date(),
-    updatedAt: new Date()
+    availableQuantity: 5,
+    author: { id: 1, name: 'Machado de Assis' }
   },
   {
     id: 2,
@@ -16,22 +14,35 @@ export const booksListMock = [
     genre: 'Dystopian',
     isbn: '9780451524935',
     yearPublished: 1949,
-    isAvailable: false,
-    author: { id: 2, name: 'George Orwell' },
-    createdAt: new Date(),
-    updatedAt: new Date()
+    availableQuantity: 5,
+    author: { id: 2, name: 'George Orwell' }
   }
 ]
+
+export const createdBookResponseMock = {
+  id: 2,
+  title: '1984',
+  genre: 'Dystopian',
+  authorId: 2,
+  totalQuantity: 5,
+  availableQuantity: 5,
+  isbn: '9780451524935',
+  yearPublished: 1949,
+  createdAt: new Date(),
+  updatedAt: new Date()
+}
 
 export const singleBookMock = {
   id: 2,
   title: '1984',
   genre: 'Dystopian',
   authorId: 2,
+  totalQuantity: 5,
+  availableQuantity: 5,
   isbn: '9780451524935',
   yearPublished: 1949,
-  createdAt: '2025-03-24T19:56:45.000Z',
-  updatedAt: '2025-03-24T19:56:45.000Z',
+  createdAt: new Date(),
+  updatedAt: new Date(),
   author: {
     id: 2,
     name: 'George Orwell'
@@ -43,7 +54,8 @@ export const bookMock = {
   title: '1984',
   genre: 'Dystopian',
   authorId: 1,
-  isAvailable: true,
+  totalQuantity: 5,
+  availableQuantity: 5,
   isbn: '9780451524935',
   yearPublished: 1949,
   createdAt: new Date(),
@@ -57,8 +69,9 @@ export const mockBookService = {
   update: jest.fn(),
   delete: jest.fn(),
   checkIfBookExists: jest.fn(),
-  checkIfBookIsRented: jest.fn(),
-  setBookAvailability: jest.fn(),
   findBookByTitle: jest.fn(),
-  findBookByIsbn: jest.fn()
+  findBookByIsbn: jest.fn(),
+  addBooksToInventory: jest.fn(),
+  removeBooksToInventory: jest.fn(),
+  bookUpdate: jest.fn()
 }

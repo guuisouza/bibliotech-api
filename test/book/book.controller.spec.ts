@@ -2,7 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { BookController } from '../../src/modules/book/book.controller'
 import { BookService } from '../../src/modules/book/book.service'
 import {
-  booksListMock,
+  booksfindAllListMock,
+  createdBookResponseMock,
   mockBookService,
   singleBookMock
 } from '../mocks/book-service.mock'
@@ -45,50 +46,51 @@ describe('BookController', () => {
 
   describe('create', () => {
     it('should call bookService.create and return the created book', async () => {
-      const createAuthorDto: CreateBookDTO = {
+      const createBookDTO: CreateBookDTO = {
         title: '1984',
         authorId: 2,
         genre: 'Dystopian',
+        totalQuantity: 5,
         isbn: '9780451524935',
         yearPublished: 1949
       }
 
-      mockBookService.create.mockResolvedValue(booksListMock[1])
+      mockBookService.create.mockResolvedValue(createdBookResponseMock)
 
-      const result = await bookController.create(createAuthorDto)
+      const result = await bookController.create(createBookDTO)
 
-      expect(bookService.create).toHaveBeenCalledWith(createAuthorDto)
-      expect(result).toEqual(booksListMock[1])
+      expect(bookService.create).toHaveBeenCalledWith(createBookDTO)
+      expect(result).toEqual(createdBookResponseMock)
     })
   })
 
   describe('findAll', () => {
     it('should call bookService.findAll with the correct filters and return the result', async () => {
       const filters: FiltersQueryBookDTO = {
-        title: '1984',
-        genre: 'Dystopian',
-        yearPublishedAfter: 1940,
+        title: 'Dom Casmurro',
+        genre: 'Romance',
+        yearPublishedAfter: 1890,
         yearPublishedBefore: 1950,
-        isbn: '9780451524935',
+        isbn: '9788572325679',
         isAvailable: true,
         orderBy: 'title',
         orderDirection: 'asc',
-        page: 2,
+        page: 1,
         perPage: 10
       }
 
-      mockBookService.findAll.mockResolvedValue(booksListMock[1])
+      mockBookService.findAll.mockResolvedValue(booksfindAllListMock[0])
 
       const result = await bookController.findAll(filters)
 
       expect(bookService.findAll).toHaveBeenCalledWith(filters)
-      expect(result).toEqual(booksListMock[1])
+      expect(result).toEqual(booksfindAllListMock[0])
     })
   })
 
   describe('findOne', () => {
     it('should call bookService.findOne with the correct ID and return the result', async () => {
-      const bookId = 1
+      const bookId = 2
 
       mockBookService.findOne.mockResolvedValue(singleBookMock)
 
@@ -127,6 +129,34 @@ describe('BookController', () => {
 
       expect(bookService.delete).toHaveBeenCalledWith(bookId)
       expect(result).toBeUndefined()
+    })
+  })
+
+  describe('addBookInventory', () => {
+    it('should delegate to bookService.addBooksToInventory with correct params', async () => {
+      const dto = { amount: 5 }
+      const mockReturn = { id: 1, ...dto }
+
+      mockBookService.addBooksToInventory.mockResolvedValue(mockReturn)
+
+      const result = await bookController.addBookInventory(1, dto)
+
+      expect(mockBookService.addBooksToInventory).toHaveBeenCalledWith(1, dto)
+      expect(result).toEqual(mockReturn)
+    })
+  })
+
+  describe('removeBookInventory', () => {
+    it('should delegate to bookService.removeBooksToInventory with correct params', async () => {
+      const dto = { amount: 2 }
+      const mockReturn = { id: 1, ...dto }
+
+      mockBookService.addBooksToInventory.mockResolvedValue(mockReturn)
+
+      const result = await bookController.addBookInventory(1, dto)
+
+      expect(mockBookService.addBooksToInventory).toHaveBeenCalledWith(1, dto)
+      expect(result).toEqual(mockReturn)
     })
   })
 })

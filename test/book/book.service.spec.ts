@@ -8,9 +8,16 @@ import { mockAuthorService } from '../mocks/author-service.mock'
 import { CreateBookDTO } from '../../src/modules/book/dto/create-book.dto'
 import { ConflictException, NotFoundException } from '@nestjs/common'
 import { FiltersQueryBookDTO } from '../../src/modules/book/dto/filters-query-book.dto'
-import { bookMock, booksListMock } from '../mocks/book-service.mock'
+import {
+  bookMock,
+  booksfindAllListMock,
+  createdBookResponseMock,
+  singleBookMock
+} from '../mocks/book-service.mock'
 import { UpdatePatchBookDTO } from '../../src/modules/book/dto/update-patch-book.dto'
 import { Book } from '@prisma/client'
+import { AddBookInventoryDTO } from '../../src/modules/book/dto/add-book-inventory.dto'
+import { RemoveBookInventoryDTO } from '../../src/modules/book/dto/remove-book-inventory.dto'
 
 describe('BookService', () => {
   let bookService: BookService
@@ -39,11 +46,12 @@ describe('BookService', () => {
 
   describe('create', () => {
     const createBookDto: CreateBookDTO = {
-      title: 'Dom Casmurro',
-      authorId: 1,
-      genre: 'Romance',
-      isbn: '9788572325679',
-      yearPublished: 1899
+      title: '1984',
+      genre: 'Dystopian',
+      authorId: 2,
+      totalQuantity: 5,
+      isbn: '9780451524935',
+      yearPublished: 1949
     }
 
     beforeEach(() => {
@@ -52,24 +60,31 @@ describe('BookService', () => {
 
     it('should create a new book successfully', async () => {
       jest.spyOn(prismaService.book, 'count').mockResolvedValue(0)
+      jest.spyOn(bookService, 'findBookByIsbn').mockResolvedValue(null)
       jest
         .spyOn(authorService, 'checkIfAuthorExists')
         .mockResolvedValue(undefined)
       jest
         .spyOn(prismaService.book, 'create')
-        .mockResolvedValue(createBookDto as any)
+        .mockResolvedValue(createdBookResponseMock as Book)
 
       const result = await bookService.create(createBookDto)
 
-      expect(result).toEqual(createBookDto)
+      expect(result).toEqual(createdBookResponseMock)
       expect(prismaService.book.count).toHaveBeenCalledWith({
         where: { title: createBookDto.title }
       })
+      expect(bookService.findBookByIsbn).toHaveBeenCalledWith(
+        createBookDto.isbn
+      )
       expect(authorService.checkIfAuthorExists).toHaveBeenCalledWith(
         createBookDto.authorId
       )
       expect(prismaService.book.create).toHaveBeenCalledWith({
-        data: createBookDto
+        data: {
+          ...createBookDto,
+          availableQuantity: createBookDto.totalQuantity
+        }
       })
     })
 
@@ -77,11 +92,32 @@ describe('BookService', () => {
       jest.spyOn(prismaService.book, 'count').mockResolvedValue(1)
 
       await expect(bookService.create(createBookDto)).rejects.toThrow(
-        new ConflictException('book already exists')
+        new ConflictException('this book already exists')
       )
       expect(prismaService.book.count).toHaveBeenCalledWith({
         where: { title: createBookDto.title }
       })
+      expect(authorService.checkIfAuthorExists).not.toHaveBeenCalled()
+      expect(prismaService.book.create).not.toHaveBeenCalled()
+    })
+
+    it('should throw ConflictException if a book with the same ISBN already exists', async () => {
+      jest.spyOn(prismaService.book, 'count').mockResolvedValue(0)
+
+      jest
+        .spyOn(bookService, 'findBookByIsbn')
+        .mockResolvedValue(createdBookResponseMock)
+
+      await expect(bookService.create(createBookDto)).rejects.toThrow(
+        new ConflictException('this book already exists')
+      )
+
+      expect(prismaService.book.count).toHaveBeenCalledWith({
+        where: { title: createBookDto.title }
+      })
+      expect(bookService.findBookByIsbn).toHaveBeenCalledWith(
+        createBookDto.isbn
+      )
       expect(authorService.checkIfAuthorExists).not.toHaveBeenCalled()
       expect(prismaService.book.create).not.toHaveBeenCalled()
     })
@@ -118,7 +154,10 @@ describe('BookService', () => {
     }
 
     it('should return all books correctly', async () => {
-      mockPrismaFindManyAndCount(booksListMock, booksListMock.length)
+      mockPrismaFindManyAndCount(
+        booksfindAllListMock,
+        booksfindAllListMock.length
+      )
       const filters: FiltersQueryBookDTO = {
         page: 1,
         perPage: 5
@@ -136,7 +175,7 @@ describe('BookService', () => {
         page: 1,
         perPage: 5
       } as FiltersQueryBookDTO
-      const filteredMock = booksListMock.filter(
+      const filteredMock = booksfindAllListMock.filter(
         (b) => b.title === filters.title
       )
 
@@ -155,7 +194,7 @@ describe('BookService', () => {
         page: 1,
         perPage: 5
       } as FiltersQueryBookDTO
-      const filteredMock = booksListMock.filter(
+      const filteredMock = booksfindAllListMock.filter(
         (b) => b.genre === filters.genre
       )
 
@@ -174,17 +213,44 @@ describe('BookService', () => {
         page: 1,
         perPage: 5
       } as FiltersQueryBookDTO
-      const filteredMock = booksListMock.filter(
-        (b) => b.isAvailable === filters.isAvailable
+      const filteredMock = booksfindAllListMock.filter(
+        (b) => b.availableQuantity > 0
       )
 
       mockPrismaFindManyAndCount(filteredMock, filteredMock.length)
 
       const result = await bookService.findAll(filters)
 
-      expect(result.data).toHaveLength(1)
-      expect(result.data[0].isAvailable).toBe(true)
-      expect(result.total).toBe(1)
+      expect(result.data).toHaveLength(filteredMock.length)
+      expect(result.total).toBe(filteredMock.length)
+      result.data.forEach((book) => {
+        expect(book.availableQuantity).toBeGreaterThan(0)
+      })
+    })
+
+    it('should return only unavailable books when isAvailable is false', async () => {
+      const filters: FiltersQueryBookDTO = {
+        isAvailable: false,
+        page: 1,
+        perPage: 5
+      } as FiltersQueryBookDTO
+
+      const unavailableBooksMock = booksfindAllListMock.filter(
+        (b) => b.availableQuantity === 0
+      )
+
+      mockPrismaFindManyAndCount(
+        unavailableBooksMock,
+        unavailableBooksMock.length
+      )
+
+      const result = await bookService.findAll(filters)
+
+      expect(result.data).toHaveLength(unavailableBooksMock.length)
+      expect(result.total).toBe(unavailableBooksMock.length)
+      result.data.forEach((book) => {
+        expect(book.availableQuantity).toBe(0)
+      })
     })
 
     it('should return paginated books correctly', async () => {
@@ -192,9 +258,9 @@ describe('BookService', () => {
         page: 2,
         perPage: 1
       } as FiltersQueryBookDTO
-      const paginatedMock = [booksListMock[1]]
+      const paginatedMock = [booksfindAllListMock[1]]
 
-      mockPrismaFindManyAndCount(paginatedMock, booksListMock.length)
+      mockPrismaFindManyAndCount(paginatedMock, booksfindAllListMock.length)
 
       const result = await bookService.findAll(filters)
 
@@ -212,7 +278,7 @@ describe('BookService', () => {
         perPage: 5
       }
 
-      const orderedMock = [...booksListMock].sort((a, b) =>
+      const orderedMock = [...booksfindAllListMock].sort((a, b) =>
         a.title.localeCompare(b.title)
       )
 
@@ -229,13 +295,13 @@ describe('BookService', () => {
       jest.clearAllMocks()
     })
 
-    const bookId = 1
+    const bookId = 2
 
     it('should return a single book with its authors', async () => {
       jest.spyOn(bookService, 'checkIfBookExists').mockResolvedValue(undefined)
       jest
         .spyOn(prismaService.book, 'findUnique')
-        .mockResolvedValue(booksListMock[0] as any)
+        .mockResolvedValue(singleBookMock)
 
       const result = await bookService.findOne(bookId)
 
@@ -251,7 +317,7 @@ describe('BookService', () => {
           }
         }
       })
-      expect(result).toEqual(booksListMock[0])
+      expect(result).toEqual(singleBookMock)
     })
 
     it('should throw NotFoundException if book does not exist', async () => {
@@ -279,7 +345,7 @@ describe('BookService', () => {
     }
 
     const expectedUpdatedBook = {
-      ...booksListMock[0],
+      ...bookMock,
       ...updateData
     }
 
@@ -410,54 +476,6 @@ describe('BookService', () => {
     })
   })
 
-  describe('checkIfBookIsRented', () => {
-    const bookId = 1
-    const isAvailable = true
-
-    it('should not throw if book is not rented', async () => {
-      jest
-        .spyOn(prismaService.book, 'findUnique')
-        .mockResolvedValue({ id: bookId } as Book)
-
-      await expect(
-        bookService.checkIfBookIsRented(bookId)
-      ).resolves.not.toThrow()
-      expect(prismaService.book.findUnique).toHaveBeenCalledWith({
-        where: {
-          id: bookId,
-          isAvailable
-        }
-      })
-    })
-
-    it('should throw NotFoundException if book is already rented', async () => {
-      jest.spyOn(prismaService.book, 'findUnique').mockResolvedValue(null)
-
-      await expect(bookService.checkIfBookIsRented(bookId)).rejects.toThrow(
-        new ConflictException('this book is already rented')
-      )
-      expect(prismaService.book.findUnique).toHaveBeenCalledWith({
-        where: { id: bookId, isAvailable }
-      })
-    })
-  })
-
-  describe('setBookAvailability', () => {
-    const bookId = 1
-    const isAvailable = false
-
-    it('should update the book availability status', async () => {
-      jest.spyOn(prismaService.book, 'update').mockResolvedValue(undefined)
-
-      await bookService.setBookAvailability(bookId, isAvailable)
-
-      expect(prismaService.book.update).toHaveBeenCalledWith({
-        where: { id: bookId },
-        data: { isAvailable }
-      })
-    })
-  })
-
   describe('findBookByTitle', () => {
     it('should return the book with the given title', async () => {
       jest.spyOn(prismaService.book, 'findFirst').mockResolvedValue(bookMock)
@@ -485,6 +503,106 @@ describe('BookService', () => {
         where: { isbn }
       })
       expect(result).toEqual(bookMock)
+    })
+  })
+
+  describe('addBooksToInventory', () => {
+    const bookId = 1
+    const dto: AddBookInventoryDTO = { amount: 3 }
+
+    it('should call checkIfBookExists and increment quantities', async () => {
+      jest.spyOn(bookService, 'checkIfBookExists').mockResolvedValue(undefined)
+
+      const updatedBook = {
+        ...bookMock,
+        totalQuantity: bookMock.totalQuantity + dto.amount,
+        availableQuantity: bookMock.availableQuantity + dto.amount
+      }
+
+      jest.spyOn(prismaService.book, 'update').mockResolvedValue(updatedBook)
+
+      const result = await bookService.addBooksToInventory(bookId, dto)
+
+      expect(bookService.checkIfBookExists).toHaveBeenCalledWith(bookId)
+      expect(prismaService.book.update).toHaveBeenCalledWith({
+        where: { id: bookId },
+        data: {
+          totalQuantity: { increment: dto.amount },
+          availableQuantity: { increment: dto.amount }
+        }
+      })
+      expect(result).toEqual(updatedBook)
+    })
+  })
+
+  describe('removeBooksToInventory', () => {
+    const bookId = 1
+    const dto: RemoveBookInventoryDTO = { amount: 2 }
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    it('should decrement quantities if book exists and enough available', async () => {
+      jest.spyOn(prismaService.book, 'findUnique').mockResolvedValue(bookMock)
+
+      const updatedBook = {
+        ...bookMock,
+        totalQuantity: bookMock.totalQuantity - dto.amount,
+        availableQuantity: bookMock.availableQuantity - dto.amount
+      }
+
+      jest.spyOn(prismaService.book, 'update').mockResolvedValue(updatedBook)
+
+      const result = await bookService.removeBooksToInventory(bookId, dto)
+
+      expect(prismaService.book.findUnique).toHaveBeenCalledWith({
+        where: { id: bookId }
+      })
+      expect(prismaService.book.update).toHaveBeenCalledWith({
+        where: { id: bookId },
+        data: {
+          totalQuantity: { decrement: dto.amount },
+          availableQuantity: { decrement: dto.amount }
+        }
+      })
+      expect(result).toEqual(updatedBook)
+    })
+
+    it('should throw NotFoundException if book does not exist', async () => {
+      jest.spyOn(prismaService.book, 'findUnique').mockResolvedValue(null)
+
+      await expect(
+        bookService.removeBooksToInventory(bookId, dto)
+      ).rejects.toThrow(
+        new NotFoundException(`book id ${bookId} does not exist`)
+      )
+
+      expect(prismaService.book.findUnique).toHaveBeenCalledWith({
+        where: { id: bookId }
+      })
+      expect(prismaService.book.update).not.toHaveBeenCalled()
+    })
+
+    it('should throw ConflictException if trying to remove more than available', async () => {
+      const insufficientBook = { ...bookMock, availableQuantity: 1 }
+
+      jest
+        .spyOn(prismaService.book, 'findUnique')
+        .mockResolvedValue(insufficientBook)
+
+      const tooMuch = { amount: 5 }
+
+      await expect(
+        bookService.removeBooksToInventory(bookId, tooMuch)
+      ).rejects.toThrow(
+        new ConflictException(
+          `cannot remove more than ${insufficientBook.availableQuantity} available books`
+        )
+      )
+
+      expect(prismaService.book.findUnique).toHaveBeenCalled()
+      expect(prismaService.book.update).not.toHaveBeenCalled()
     })
   })
 })
