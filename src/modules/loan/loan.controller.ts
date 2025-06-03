@@ -210,7 +210,6 @@ export class LoanController {
     status: 409,
     description: 'Conflict - this loan has already been returned'
   })
-  @HttpCode(204)
   @Patch(':id/return')
   async closeLoan(@Param('id', ParseIntPipe) id: number) {
     return this.loanService.closeLoan(id)

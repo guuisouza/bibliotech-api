@@ -31,29 +31,41 @@ export class LoanService {
 
     await this.studentService.checkIfStudentExists(data.studentId)
 
-    await this.bookService.checkIfBookExists(data.bookId)
+    return this.prisma.$transaction(async (tx) => {
+      const book = await tx.book.findUnique({ where: { id: data.bookId } })
+      if (!book) throw new NotFoundException(`book id ${data.bookId} not found`)
 
-    await this.bookService.checkIfBookIsRented(data.bookId)
-
-    const activeLoan = await this.prisma.loan.findFirst({
-      where: {
-        studentId: data.studentId,
-        isActive: true
+      if (book.availableQuantity <= 0) {
+        throw new ConflictException('no available copies of this book')
       }
-    })
 
-    if (activeLoan) {
-      throw new ConflictException('this student already has an active loan')
-    }
+      const activeLoan = await tx.loan.findFirst({
+        where: {
+          studentId: data.studentId,
+          isActive: true
+        }
+      })
 
-    await this.bookService.setBookAvailability(data.bookId, false)
-
-    return this.prisma.loan.create({
-      data: {
-        studentId: data.studentId,
-        bookId: data.bookId,
-        dueDate: dueDate
+      if (activeLoan) {
+        throw new ConflictException('This student already has an active loan')
       }
+
+      const newLoan = await tx.loan.create({
+        data: {
+          studentId: data.studentId,
+          bookId: data.bookId,
+          dueDate
+        }
+      })
+
+      await tx.book.update({
+        where: { id: data.bookId },
+        data: {
+          availableQuantity: { decrement: 1 }
+        }
+      })
+
+      return newLoan
     })
   }
 
@@ -155,25 +167,49 @@ export class LoanService {
   }
 
   async closeLoan(id: number) {
-    await this.checkIfLoanExists(id)
+    return this.prisma.$transaction(async (tx) => {
+      const loan = await tx.loan.findUnique({ where: { id } })
+      if (!loan) throw new NotFoundException('Loan not found')
 
-    const loan = await this.prisma.loan.findUnique({
-      where: { id }
-    })
-
-    if (!loan.isActive) {
-      throw new ConflictException('this loan has already been returned')
-    }
-
-    await this.prisma.loan.update({
-      where: { id },
-      data: {
-        isActive: false,
-        returnDate: new Date(),
-        updatedAt: new Date()
+      if (!loan.isActive) {
+        throw new ConflictException('This loan has already been returned')
       }
+
+      const returnedLoan = await tx.loan.update({
+        where: { id },
+        data: {
+          isActive: false,
+          returnDate: new Date(),
+          updatedAt: new Date()
+        },
+        select: {
+          id: true,
+          returnDate: true,
+          isActive: true,
+          book: {
+            select: {
+              id: true,
+              title: true
+            }
+          },
+          student: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      })
+
+      await tx.book.update({
+        where: { id: loan.bookId },
+        data: {
+          availableQuantity: { increment: 1 }
+        }
+      })
+
+      return returnedLoan
     })
-    await this.bookService.setBookAvailability(loan.bookId, true)
   }
 
   async delete(id: number) {
