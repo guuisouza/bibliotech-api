@@ -31,8 +31,37 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request - Invalid values for email or password",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 400,
+                  "message": [
+                    "email must be an email",
+                    "password must be a string"
+                  ],
+                  "error": "Bad Request"
+                }
+              }
+            }
+          },
           "401": {
-            "description": "Unauthorized - incorrect email or password"
+            "description": "Unauthorized - Incorrect email or password",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Incorrect email or password field values",
+                    "value": {
+                      "message": "incorrect email or password",
+                      "error": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Admin login",
@@ -71,11 +100,65 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request - Invalid values for one or more fields",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "invalidFields": {
+                    "summary": "Multiple invalid fields",
+                    "value": {
+                      "message": [
+                        "name should not be empty",
+                        "name must be shorter than or equal to 90 characters",
+                        "name must be a string",
+                        "nationality should not be empty",
+                        "nationality must be shorter than or equal to 30 characters",
+                        "nationality must be a string",
+                        "the author must be over 16 years old",
+                        "the birth year must be greater than 1000",
+                        "birthYear must be a number conforming to the specified constraints"
+                      ],
+                      "error": "Bad Request",
+                      "statusCode": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "409": {
-            "description": "Conflict - author already exists"
+            "description": "Conflict - Author already exists",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "authorConflict": {
+                    "summary": "Author already exists",
+                    "value": {
+                      "message": "author already exists",
+                      "error": "Conflict",
+                      "statusCode": 409
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -179,7 +262,20 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -226,7 +322,8 @@
                       "title": "1984",
                       "genre": "Distopia",
                       "authorId": 6,
-                      "isAvailable": true,
+                      "totalQuantity": 15,
+                      "availableQuantity": 15,
                       "isbn": "9780451524935",
                       "yearPublished": 1949,
                       "createdAt": "2025-03-14T19:07:06.000Z",
@@ -238,10 +335,37 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - author id 2 does not exist"
+            "description": "Not Found - Author id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "authorNotFound": {
+                    "summary": "Author id not found",
+                    "value": {
+                      "message": "author id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -273,10 +397,37 @@
             "description": "No Content - Author successfully deleted"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - author id 2 does not exist"
+            "description": "Not Found - Author id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "authorNotFound": {
+                    "summary": "Author id not found",
+                    "value": {
+                      "message": "author id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict - you can't exclude this author because he has books associated with him"
@@ -317,7 +468,7 @@
                   "title": "Animal Farm",
                   "genre": "Satire",
                   "authorId": 1,
-                  "isAvailable": true,
+                  "totalQuantity": 7,
                   "isbn": "9788535909553",
                   "yearPublished": 1945,
                   "createdAt": "2025-03-24T19:56:45.000Z",
@@ -326,14 +477,86 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request - Invalid values",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "bookBadRequest": {
+                    "summary": "Invalid or missing values for book creation",
+                    "value": {
+                      "message": [
+                        "title should not be empty",
+                        "title must be shorter than or equal to 250 characters",
+                        "title must be a string",
+                        "authorId must be a number conforming to the specified constraints",
+                        "genre should not be empty",
+                        "genre must be shorter than or equal to 50 characters",
+                        "genre must be a string",
+                        "isbn should not be empty",
+                        "isbn must be shorter than or equal to 15 characters",
+                        "isbn must be a string",
+                        "the published year must be greater than 1000",
+                        "the published year must be less than the current year",
+                        "year must be a number conforming to the specified constraints"
+                      ],
+                      "error": "Bad Request",
+                      "statusCode": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - author id 55 does not exist"
+            "description": "Not Found - Author id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "authorNotFound": {
+                    "summary": "Author id not found",
+                    "value": {
+                      "message": "author id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
           },
           "409": {
-            "description": "Conflict - book already exists"
+            "description": "Conflict - Book already exists",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "bookAlreadyExistsConflict": {
+                    "summary": "Book already exists",
+                    "value": {
+                      "message": "this book already exists",
+                      "error": "Conflict",
+                      "statusCode": 409
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -455,7 +678,7 @@
                       "genre": "Satire",
                       "isbn": "9788535909553",
                       "yearPublished": 1945,
-                      "isAvailable": true,
+                      "availableQuantity": 7,
                       "author": {
                         "id": 1,
                         "name": "George Orwell"
@@ -467,7 +690,20 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -506,7 +742,8 @@
                   "title": "Animal Farm",
                   "genre": "Satire",
                   "authorId": 1,
-                  "isAvailable": true,
+                  "totalQuantity": 7,
+                  "availableQuantity": 7,
                   "isbn": "9788535909553",
                   "yearPublished": 1945,
                   "createdAt": "2025-03-24T19:56:45.000Z",
@@ -520,10 +757,37 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - book id 23 does not exist"
+            "description": "Not Found - Book id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "bookNotFound": {
+                    "summary": "Book id not found",
+                    "value": {
+                      "message": "book id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -595,10 +859,54 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - book id 23 does not exist"
+            "description": "Not Found - Book id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "bookNotFound": {
+                    "summary": "Book id not found",
+                    "value": {
+                      "message": "book id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Book already exists",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "bookAlreadyExistsConflict": {
+                    "summary": "Book already exists",
+                    "value": {
+                      "message": "this book already exists",
+                      "error": "Conflict",
+                      "statusCode": 409
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -630,10 +938,37 @@
             "description": "No Content - Book successfully deleted"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - book id 55 does not exist"
+            "description": "Not Found - Book id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "bookNotFound": {
+                    "summary": "Book id not found",
+                    "value": {
+                      "message": "book id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict - this book is still on loan and cannot be deleted."
@@ -645,6 +980,211 @@
           }
         ],
         "summary": "Delete a single book",
+        "tags": [
+          "Book"
+        ]
+      }
+    },
+    "/api/v2/books/{id}/add-inventory": {
+      "post": {
+        "operationId": "BookController_addBookInventory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Book ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddBookInventoryDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quantity was successfully increased",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 1,
+                  "title": "Animal Farm",
+                  "genre": "Satire",
+                  "authorId": 1,
+                  "totalQuantity": 8,
+                  "availableQuantity": 8,
+                  "isbn": "9788535909553",
+                  "yearPublished": 1945,
+                  "createdAt": "2025-03-24T19:56:45.000Z",
+                  "updatedAt": "2025-03-24T19:56:45.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid inventory quantity",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "amountInvalid": {
+                    "summary": "Empty or invalid amount value",
+                    "value": {
+                      "message": [
+                        "amount must be an integer number",
+                        "amount must not be empty",
+                        "the quantity to add or remove from inventory must be greater than 0"
+                      ],
+                      "error": "Bad Request",
+                      "statusCode": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Adds a desired amount of new copies of books to the inventory ",
+        "tags": [
+          "Book"
+        ]
+      }
+    },
+    "/api/v2/books/{id}/remove-inventory": {
+      "post": {
+        "operationId": "BookController_removeBookInventory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Book ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveBookInventoryDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quantity was successfully decreased",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 1,
+                  "title": "Animal Farm",
+                  "genre": "Satire",
+                  "authorId": 1,
+                  "totalQuantity": 7,
+                  "availableQuantity": 7,
+                  "isbn": "9788535909553",
+                  "yearPublished": 1945,
+                  "createdAt": "2025-03-24T19:56:45.000Z",
+                  "updatedAt": "2025-03-24T19:56:45.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid inventory quantity",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "amountInvalid": {
+                    "summary": "Empty or invalid amount value",
+                    "value": {
+                      "message": [
+                        "amount must be an integer number",
+                        "amount must not be empty",
+                        "the quantity to add or remove from inventory must be greater than 0"
+                      ],
+                      "error": "Bad Request",
+                      "statusCode": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Cannot remove more books than the available quantity.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "bookAlreadyExistsConflict": {
+                    "summary": "Cannot remove more books than the available quantity.",
+                    "value": {
+                      "message": "cannot remove more than 6 available books",
+                      "error": "Conflict",
+                      "statusCode": 409
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Removes a desired amount of copies of books to the inventory ",
         "tags": [
           "Book"
         ]
@@ -681,8 +1221,50 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request - Invalid student data",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "invalidStudentData": {
+                    "summary": "One or more fields have invalid values",
+                    "value": {
+                      "statusCode": 400,
+                      "message": [
+                        "name should not be empty",
+                        "name must be shorter than or equal to 90 characters",
+                        "name must be a string",
+                        "email must be an email",
+                        "email should not be empty",
+                        "phone should not be empty",
+                        "the phone number must be in the format (XX) XXXXX-XXXX",
+                        "the phone number must be exactly 15 characters long (format: (XX) XXXXX-XXXX)",
+                        "academic registration should not be empty",
+                        "the academic registry must be exactly 13 digits long",
+                        "academicRegistration must be a string"
+                      ],
+                      "error": "Bad Request"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict - this student email or academic registry already exists",
@@ -811,7 +1393,20 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -887,10 +1482,37 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - student id 44 does not exist"
+            "description": "Not Found - Student id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "studentNotFound": {
+                    "summary": "Student id not found",
+                    "value": {
+                      "message": "student id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -955,10 +1577,37 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - student id 23 does not exist"
+            "description": "Not Found - Student id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "studentNotFound": {
+                    "summary": "Student id not found",
+                    "value": {
+                      "message": "student id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict - this student email or academic registry already exists",
@@ -1015,10 +1664,37 @@
             "description": "No Content - Student successfully deleted"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - student id 44 does not exist"
+            "description": "Not Found - Student id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "studentNotFound": {
+                    "summary": "Student id not found",
+                    "value": {
+                      "message": "student id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict - this student still has active loans and cannot be deleted."
@@ -1069,21 +1745,51 @@
             }
           },
           "400": {
-            "description": "Bad Request - loan date must be greater than current date"
+            "description": "Bad Request - validation errors when creating a loan",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 400,
+                  "message": [
+                    "studentId must be a number",
+                    "studentId should not be empty",
+                    "bookId must be a number",
+                    "bookId should not be empty",
+                    "dueDate must be a valid ISO 8601 date string",
+                    "dueDate should not be empty",
+                    "dueDate must be greater than current date"
+                  ],
+                  "error": "Bad Request"
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
-          },
-          "409": {
-            "description": "Conflict - this student already has an active loan or the book is already rented",
+            "description": "Unauthorized - Unauthorized route access attempt",
             "content": {
               "application/json": {
                 "examples": {
-                  "bookConflict": {
-                    "summary": "Book already rented",
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - this student already has an active loan or there are no available copies of the book",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "noAvailableCopies": {
+                    "summary": "No available copies of the book",
                     "value": {
                       "statusCode": 409,
-                      "message": "this book is already rented",
+                      "message": "no available copies of this book",
                       "error": "Conflict"
                     }
                   },
@@ -1091,7 +1797,7 @@
                     "summary": "Student already has an active loan",
                     "value": {
                       "statusCode": 409,
-                      "message": "this student already has an active loan",
+                      "message": "This student already has an active loan",
                       "error": "Conflict"
                     }
                   }
@@ -1224,7 +1930,20 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1281,10 +2000,37 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - loan id 34 does not exist"
+            "description": "Not Found - Loan id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loanNotFound": {
+                    "summary": "Loan id not found",
+                    "value": {
+                      "message": "loan id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1316,10 +2062,37 @@
             "description": "No Content - Loan successfully deleted"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - loan id 44 does not exist"
+            "description": "Not Found - Loan id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loanNotFound": {
+                    "summary": "Loan id not found",
+                    "value": {
+                      "message": "loan id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict - this loan is active and cannot be deleted"
@@ -1356,10 +2129,37 @@
             "description": "No Content - The loan was returned successfully."
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Unauthorized route access attempt",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loginUnauthorized": {
+                    "summary": "Unauthorized route access attempt",
+                    "value": {
+                      "message": "Unauthorized",
+                      "statusCode": 401
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found - loan id 34 does not exist"
+            "description": "Not Found - Loan id not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "loanNotFound": {
+                    "summary": "Loan id not found",
+                    "value": {
+                      "message": "loan id 655 does not exist",
+                      "error": "Not Found",
+                      "statusCode": 404
+                    }
+                  }
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict - this loan has already been returned"
@@ -1380,8 +2180,12 @@
   "info": {
     "title": "Bibliotech API",
     "description": "API documentation for University Library Management System",
-    "version": "2.0",
-    "contact": {}
+    "version": "3.0",
+    "contact": {
+      "name": "Guilherme Dilio de Souza",
+      "url": "https://github.com/guuisouza/bibliotech-api",
+      "email": "guilhermedilio2003@gmail.com"
+    }
   },
   "tags": [],
   "servers": [],
@@ -1465,6 +2269,11 @@
             "type": "number",
             "example": 1945,
             "description": "Year the book was published"
+          },
+          "totalQuantity": {
+            "type": "number",
+            "example": 10,
+            "description": "Quantity of this book in inventory"
           }
         },
         "required": [
@@ -1472,12 +2281,39 @@
           "authorId",
           "genre",
           "isbn",
-          "yearPublished"
+          "yearPublished",
+          "totalQuantity"
         ]
       },
       "UpdatePatchBookDTO": {
         "type": "object",
         "properties": {}
+      },
+      "AddBookInventoryDTO": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "example": 5,
+            "description": "Quantity of this book to add or remove from inventory"
+          }
+        },
+        "required": [
+          "amount"
+        ]
+      },
+      "RemoveBookInventoryDTO": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "example": 5,
+            "description": "Quantity of this book to add or remove from inventory"
+          }
+        },
+        "required": [
+          "amount"
+        ]
       },
       "CreateStudentDTO": {
         "type": "object",
