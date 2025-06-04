@@ -25,7 +25,7 @@ export class LoanService {
     const dueDate = new Date(data.dueDate)
     if (dueDate <= new Date()) {
       throw new BadRequestException(
-        'loan date must be greater than current date'
+        'due date must be greater than current date'
       )
     }
 
