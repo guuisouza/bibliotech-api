@@ -26,6 +26,17 @@ import {
 } from '@nestjs/swagger'
 import { AddBookInventoryDTO } from './dto/add-book-inventory.dto'
 import { RemoveBookInventoryDTO } from './dto/remove-book-inventory.dto'
+import {
+  ApiSharedUnauthorizedResponse,
+  ApiSharedBookNotFoundResponse,
+  ApiSharedAuthorNotFoundResponse
+} from 'src/swagger/responses/shared.responses'
+import {
+  ApiBookBadRequestResponse,
+  ApiBookConflictResponse,
+  ApiBookInventoryBadRequestResponse,
+  ApiBookRemoveInventoryConflictResponse
+} from 'src/swagger/responses/book.responses'
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -49,18 +60,10 @@ export class BookController {
       updatedAt: '2025-03-24T19:56:45.000Z'
     }
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - author id 55 does not exist'
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'Conflict - book already exists'
-  })
+  @ApiBookBadRequestResponse()
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedAuthorNotFoundResponse()
+  @ApiBookConflictResponse()
   @Post()
   async create(@Body() data: CreateBookDTO) {
     return this.bookService.create(data)
@@ -111,10 +114,7 @@ export class BookController {
       ]
     }
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
+  @ApiSharedUnauthorizedResponse()
   @Get()
   async findAll(@Query() filters: FiltersQueryBookDTO) {
     return this.bookService.findAll(filters)
@@ -150,14 +150,8 @@ export class BookController {
       }
     }
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - book id 23 does not exist'
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedBookNotFoundResponse()
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.bookService.findOne(id)
@@ -205,14 +199,10 @@ export class BookController {
       updatedAt: '2025-03-24T20:29:30.000Z'
     }
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - book id 23 does not exist'
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedBookNotFoundResponse()
+  @ApiSharedAuthorNotFoundResponse()
+  @ApiBookConflictResponse()
   @Patch(':id')
   async update(
     @Body() data: UpdatePatchBookDTO,
@@ -234,14 +224,8 @@ export class BookController {
     status: 204,
     description: 'No Content - Book successfully deleted'
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - book id 55 does not exist'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedBookNotFoundResponse()
   @ApiResponse({
     status: 409,
     description: 'Conflict - this book is still on loan and cannot be deleted.'
@@ -262,7 +246,7 @@ export class BookController {
     example: 1
   })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'Quantity was successfully increased',
     example: {
       id: 1,
@@ -277,6 +261,9 @@ export class BookController {
       updatedAt: '2025-03-24T19:56:45.000Z'
     }
   })
+  @ApiBookInventoryBadRequestResponse()
+  @ApiSharedUnauthorizedResponse()
+  @HttpCode(200)
   @Post(':id/add-inventory')
   async addBookInventory(
     @Param('id', ParseIntPipe) id: number,
@@ -295,7 +282,7 @@ export class BookController {
     example: 1
   })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'Quantity was successfully decreased',
     example: {
       id: 1,
@@ -310,6 +297,10 @@ export class BookController {
       updatedAt: '2025-03-24T19:56:45.000Z'
     }
   })
+  @ApiBookInventoryBadRequestResponse()
+  @ApiSharedUnauthorizedResponse()
+  @ApiBookRemoveInventoryConflictResponse()
+  @HttpCode(200)
   @Post(':id/remove-inventory')
   async removeBookInventory(
     @Param('id', ParseIntPipe) id: number,
