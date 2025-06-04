@@ -22,6 +22,14 @@ import {
   ApiQuery,
   ApiResponse
 } from '@nestjs/swagger'
+import {
+  ApiCreateLoanBadRequestResponse,
+  ApiCreateLoanConflictResponse
+} from 'src/swagger/responses/loan.responses'
+import {
+  ApiSharedLoanNotFoundResponse,
+  ApiSharedUnauthorizedResponse
+} from 'src/swagger/responses/shared.responses'
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -45,41 +53,9 @@ export class LoanController {
       updatedAt: '2025-03-25T21:23:24.000Z'
     }
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request - loan date must be greater than current date'
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 409,
-    description:
-      'Conflict - this student already has an active loan or the book is already rented',
-    content: {
-      'application/json': {
-        examples: {
-          bookConflict: {
-            summary: 'Book already rented',
-            value: {
-              statusCode: 409,
-              message: 'this book is already rented',
-              error: 'Conflict'
-            }
-          },
-          studentConflict: {
-            summary: 'Student already has an active loan',
-            value: {
-              statusCode: 409,
-              message: 'this student already has an active loan',
-              error: 'Conflict'
-            }
-          }
-        }
-      }
-    }
-  })
+  @ApiCreateLoanBadRequestResponse()
+  @ApiSharedUnauthorizedResponse()
+  @ApiCreateLoanConflictResponse()
   @Post()
   async create(@Body() data: CreateLoanDTO) {
     return this.loanService.create(data)
@@ -130,10 +106,7 @@ export class LoanController {
       ]
     }
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
+  @ApiSharedUnauthorizedResponse()
   @Get()
   async findAll(@Query() filters: FiltersQueryLoanDTO) {
     return this.loanService.findAll(filters)
@@ -172,14 +145,8 @@ export class LoanController {
       updatedAt: '2025-03-25T21:23:24.000Z'
     }
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - loan id 34 does not exist'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedLoanNotFoundResponse()
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.loanService.findOne(id)
@@ -198,14 +165,8 @@ export class LoanController {
     status: 204,
     description: 'No Content - The loan was returned successfully.'
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - loan id 34 does not exist'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedLoanNotFoundResponse()
   @ApiResponse({
     status: 409,
     description: 'Conflict - this loan has already been returned'
@@ -228,14 +189,8 @@ export class LoanController {
     status: 204,
     description: 'No Content - Loan successfully deleted'
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - loan id 44 does not exist'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedLoanNotFoundResponse()
   @ApiResponse({
     status: 409,
     description: 'Conflict - this loan is active and cannot be deleted'
