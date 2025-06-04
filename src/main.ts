@@ -36,8 +36,13 @@ async function bootstrap() {
     .setDescription(
       'API documentation for University Library Management System'
     )
-    .setVersion('2.0')
+    .setVersion('3.0')
     .addBearerAuth()
+    .setContact(
+      'Guilherme Dilio de Souza',
+      'https://github.com/guuisouza/bibliotech-api',
+      'guilhermedilio2003@gmail.com'
+    )
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
