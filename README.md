@@ -7,22 +7,23 @@ Um sistema administrativo back-end, fechado (apenas administradores) e objetivo,
 ### Funcionalidades Principais
 
 - Gerenciamento de Autores, Livros, Estudantes e Empréstimos (criar, visualizar, atualizar, deletar)
-- Empréstimo e devolução de livros com controle de status (ativo/inativo)
+- Empréstimo e devolução de livros com controle de estoque de livros disponíveis
 - Verificação de disponibilidade de livros antes de realizar o empréstimo
 - Histórico de empréstimos e devoluções por estudante
 - Regras de negócio aplicadas, como prazos de devolução
 - Filtros de busca por título, gênero, ISBN, disponibilidade, ano de publicação, etc.
-- Paginação e ordenação por título ou ano de publicação nos endpoints de listagem
+- Paginação e ordenação em todos os endpoints de listagem
 
 ### Funcionalidades Técnicas
 
 - Manipulação de banco de dados com PrismaORM e MySQL
+- Transações atômicas com prisma
 - Autenticação com JWT utilizando passport strategy
 - Seed para criação do usuário administrador padrão
 - Validação e transformação de dados com DTOs (utilizando class-validator e class-transformer)
 - Tratamento de erros centralizado no NestJS
 - Documentação interativa da API com Swagger
-- Testes automatizados com Jest (serviços e controllers)
+- Testes unitários com Jest (serviços e controllers)
 - Limite de taxa de requisições
 - Estrutura modular
 
@@ -31,6 +32,7 @@ Um sistema administrativo back-end, fechado (apenas administradores) e objetivo,
 - Autenticação baseada em JWT utilizando passport strategy
 - Criptografia de Senha (Apenas do ADMIN) no banco de dados
 - Mais campos detalhados em todas as tabelas (Ex: Adicionado ISBN para os livros)
+- Gerenciamento robusto de estoque de livros disponíveis para empréstimos
 - Buscas páginadas e com novos filtros
 - Proteção contra ataques de força bruta (Limite de taxa de requisições por minuto)
 - Testes unitários automatizados de todos as funções em serviços e controllers
@@ -140,6 +142,8 @@ Para acessar a documentação interativa da BibliotechAPI via Swagger clique [aq
 #### Livros
 
 - `POST /books` - Criar livro
+- `POST /books/:bookId/add-inventory` - Adicionar mais quantidade de livros ao inventário
+- `POST /books/:bookId/remove-inventory` - Remover quantidade desejada de livros do inventário
 - `GET /books` - Consultar todos os livros
 - `GET /books/:bookId` - Consultar livro detalhadamente
 - `PATCH /books/:bookId` - Atualizar um livro existente
@@ -198,8 +202,9 @@ npm run test
 - genre
 - isbn
 - yearPublished
+- totalQuantity
+- availableQuantity
 - authorId (Foreign Key)
-- isAvailable (padrão true)
 - createdAt
 - updatedAt
 

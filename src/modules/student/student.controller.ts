@@ -24,6 +24,15 @@ import {
   ApiQuery,
   ApiResponse
 } from '@nestjs/swagger'
+import {
+  ApiSharedStudentNotFoundResponse,
+  ApiSharedUnauthorizedResponse
+} from 'src/swagger/responses/shared.responses'
+import {
+  ApiStudentBadRequestResponse,
+  ApiStudentConflictResponse,
+  ApiStudentFindOneResponse
+} from 'src/swagger/responses/student.responses'
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -45,37 +54,9 @@ export class StudentController {
       updatedAt: '2025-03-24T20:49:45.000Z'
     }
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 409,
-    description:
-      'Conflict - this student email or academic registry already exists',
-    content: {
-      'application/json': {
-        examples: {
-          emailConflict: {
-            summary: 'Email already exists',
-            value: {
-              statusCode: 409,
-              message: 'this student email already exists',
-              error: 'Conflict'
-            }
-          },
-          academicRegistryConflict: {
-            summary: 'Academic registry already exists',
-            value: {
-              statusCode: 409,
-              message: 'this student academic registry already exists',
-              error: 'Conflict'
-            }
-          }
-        }
-      }
-    }
-  })
+  @ApiStudentBadRequestResponse()
+  @ApiSharedUnauthorizedResponse()
+  @ApiStudentConflictResponse()
   @Post()
   async create(@Body() data: CreateStudentDTO) {
     return this.studentService.create(data)
@@ -122,10 +103,7 @@ export class StudentController {
       ]
     }
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
+  @ApiSharedUnauthorizedResponse()
   @Get()
   async findAll(@Query() filters: FiltersQueryStudentDTO) {
     return this.studentService.findAll(filters)
@@ -140,57 +118,9 @@ export class StudentController {
     description: 'Student ID',
     example: 1
   })
-  @ApiResponse({
-    status: 200,
-    description:
-      'Successful response with all the detailed information of the student and his active loan (if he has a loan)',
-    examples: {
-      'student-without-loan': {
-        summary: 'Response when the student does not have an active loan',
-        value: {
-          id: 1,
-          name: 'Alice Oliveira',
-          email: 'alice.oliveira@email.com',
-          phone: '(11) 98765-4321',
-          academicRegistration: '2023123456789',
-          createdAt: '2025-03-24T20:49:45.000Z',
-          updatedAt: '2025-03-24T20:49:45.000Z',
-          activeLoan: null
-        }
-      },
-      'student-with-loan': {
-        summary: 'Response when the student has an active loan',
-        value: {
-          id: 1,
-          name: 'Alice Oliveira',
-          email: 'alice.oliveira@email.com',
-          phone: '(11) 98765-4321',
-          academicRegistration: '2023123456789',
-          createdAt: '2025-03-24T20:49:45.000Z',
-          updatedAt: '2025-03-24T20:49:45.000Z',
-          activeLoan: {
-            id: 1,
-            studentId: 1,
-            bookId: 1,
-            loanDate: '2025-03-25T20:48:16.000Z',
-            dueDate: '2025-03-30T00:00:00.000Z',
-            isActive: true,
-            returnDate: null,
-            createdAt: '2025-03-25T20:48:16.000Z',
-            updatedAt: '2025-03-25T20:48:16.000Z'
-          }
-        }
-      }
-    }
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - student id 44 does not exist'
-  })
+  @ApiStudentFindOneResponse()
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedStudentNotFoundResponse()
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.studentService.findOne(id)
@@ -231,41 +161,9 @@ export class StudentController {
       updatedAt: '2025-03-25T20:48:12.000Z'
     }
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - student id 23 does not exist'
-  })
-  @ApiResponse({
-    status: 409,
-    description:
-      'Conflict - this student email or academic registry already exists',
-    content: {
-      'application/json': {
-        examples: {
-          emailConflict: {
-            summary: 'Email already exists',
-            value: {
-              statusCode: 409,
-              message: 'this student email already exists',
-              error: 'Conflict'
-            }
-          },
-          academicRegistryConflict: {
-            summary: 'Academic registry already exists',
-            value: {
-              statusCode: 409,
-              message: 'this student academic registry already exists',
-              error: 'Conflict'
-            }
-          }
-        }
-      }
-    }
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedStudentNotFoundResponse()
+  @ApiStudentConflictResponse()
   @Patch(':id')
   async update(
     @Body() data: UpdatePatchStudentDTO,
@@ -287,14 +185,8 @@ export class StudentController {
     status: 204,
     description: 'No Content - Student successfully deleted'
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - student id 44 does not exist'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedStudentNotFoundResponse()
   @ApiResponse({
     status: 409,
     description:

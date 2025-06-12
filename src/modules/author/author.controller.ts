@@ -22,6 +22,14 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger'
+import {
+  ApiSharedUnauthorizedResponse,
+  ApiSharedAuthorNotFoundResponse
+} from 'src/swagger/responses/shared.responses'
+import {
+  ApiAuthorBadRequestResponse,
+  ApiAuthorConflictResponse
+} from 'src/swagger/responses/author.responses'
 
 @ApiTags('Authors')
 @ApiBearerAuth()
@@ -43,14 +51,9 @@ export class AuthorController {
       updatedAt: '2025-03-21T20:36:23.000Z'
     }
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'Conflict - author already exists'
-  })
+  @ApiAuthorBadRequestResponse()
+  @ApiSharedUnauthorizedResponse()
+  @ApiAuthorConflictResponse()
   @Post()
   async create(@Body() data: CreateAuthorDTO) {
     return this.authorService.create(data)
@@ -92,10 +95,7 @@ export class AuthorController {
       ]
     }
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
+  @ApiSharedUnauthorizedResponse()
   @Get()
   async findAll(@Query() filters: FiltersQueryAuthorDTO) {
     return this.authorService.findAll(filters)
@@ -126,7 +126,8 @@ export class AuthorController {
           title: '1984',
           genre: 'Distopia',
           authorId: 6,
-          isAvailable: true,
+          totalQuantity: 15,
+          availableQuantity: 15,
           isbn: '9780451524935',
           yearPublished: 1949,
           createdAt: '2025-03-14T19:07:06.000Z',
@@ -135,14 +136,8 @@ export class AuthorController {
       ]
     }
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - author id 2 does not exist'
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedAuthorNotFoundResponse()
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.authorService.findOne(id)
@@ -161,14 +156,8 @@ export class AuthorController {
     status: 204,
     description: 'No Content - Author successfully deleted'
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - author id 2 does not exist'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedAuthorNotFoundResponse()
   @ApiResponse({
     status: 409,
     description:

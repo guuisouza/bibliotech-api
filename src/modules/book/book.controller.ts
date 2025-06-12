@@ -24,6 +24,19 @@ import {
   ApiQuery,
   ApiResponse
 } from '@nestjs/swagger'
+import { AddBookInventoryDTO } from './dto/add-book-inventory.dto'
+import { RemoveBookInventoryDTO } from './dto/remove-book-inventory.dto'
+import {
+  ApiSharedUnauthorizedResponse,
+  ApiSharedBookNotFoundResponse,
+  ApiSharedAuthorNotFoundResponse
+} from 'src/swagger/responses/shared.responses'
+import {
+  ApiBookBadRequestResponse,
+  ApiBookConflictResponse,
+  ApiBookInventoryBadRequestResponse,
+  ApiBookRemoveInventoryConflictResponse
+} from 'src/swagger/responses/book.responses'
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -40,25 +53,17 @@ export class BookController {
       title: 'Animal Farm',
       genre: 'Satire',
       authorId: 1,
-      isAvailable: true,
+      totalQuantity: 7,
       isbn: '9788535909553',
       yearPublished: 1945,
       createdAt: '2025-03-24T19:56:45.000Z',
       updatedAt: '2025-03-24T19:56:45.000Z'
     }
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - author id 55 does not exist'
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'Conflict - book already exists'
-  })
+  @ApiBookBadRequestResponse()
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedAuthorNotFoundResponse()
+  @ApiBookConflictResponse()
   @Post()
   async create(@Body() data: CreateBookDTO) {
     return this.bookService.create(data)
@@ -100,7 +105,7 @@ export class BookController {
           genre: 'Satire',
           isbn: '9788535909553',
           yearPublished: 1945,
-          isAvailable: true,
+          availableQuantity: 7,
           author: {
             id: 1,
             name: 'George Orwell'
@@ -109,10 +114,7 @@ export class BookController {
       ]
     }
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
+  @ApiSharedUnauthorizedResponse()
   @Get()
   async findAll(@Query() filters: FiltersQueryBookDTO) {
     return this.bookService.findAll(filters)
@@ -136,7 +138,8 @@ export class BookController {
       title: 'Animal Farm',
       genre: 'Satire',
       authorId: 1,
-      isAvailable: true,
+      totalQuantity: 7,
+      availableQuantity: 7,
       isbn: '9788535909553',
       yearPublished: 1945,
       createdAt: '2025-03-24T19:56:45.000Z',
@@ -147,14 +150,8 @@ export class BookController {
       }
     }
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - book id 23 does not exist'
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedBookNotFoundResponse()
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.bookService.findOne(id)
@@ -202,14 +199,10 @@ export class BookController {
       updatedAt: '2025-03-24T20:29:30.000Z'
     }
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - book id 23 does not exist'
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedBookNotFoundResponse()
+  @ApiSharedAuthorNotFoundResponse()
+  @ApiBookConflictResponse()
   @Patch(':id')
   async update(
     @Body() data: UpdatePatchBookDTO,
@@ -231,14 +224,8 @@ export class BookController {
     status: 204,
     description: 'No Content - Book successfully deleted'
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized'
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - book id 55 does not exist'
-  })
+  @ApiSharedUnauthorizedResponse()
+  @ApiSharedBookNotFoundResponse()
   @ApiResponse({
     status: 409,
     description: 'Conflict - this book is still on loan and cannot be deleted.'
@@ -247,5 +234,78 @@ export class BookController {
   @HttpCode(204)
   async delete(@Param('id', ParseIntPipe) id: number) {
     return this.bookService.delete(id)
+  }
+
+  @ApiOperation({
+    summary: 'Adds a desired amount of new copies of books to the inventory '
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Book ID',
+    example: 1
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Quantity was successfully increased',
+    example: {
+      id: 1,
+      title: 'Animal Farm',
+      genre: 'Satire',
+      authorId: 1,
+      totalQuantity: 8,
+      availableQuantity: 8,
+      isbn: '9788535909553',
+      yearPublished: 1945,
+      createdAt: '2025-03-24T19:56:45.000Z',
+      updatedAt: '2025-03-24T19:56:45.000Z'
+    }
+  })
+  @ApiBookInventoryBadRequestResponse()
+  @ApiSharedUnauthorizedResponse()
+  @HttpCode(200)
+  @Post(':id/add-inventory')
+  async addBookInventory(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: AddBookInventoryDTO
+  ) {
+    return this.bookService.addBooksToInventory(id, data)
+  }
+
+  @ApiOperation({
+    summary: 'Removes a desired amount of copies of books to the inventory '
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Book ID',
+    example: 1
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Quantity was successfully decreased',
+    example: {
+      id: 1,
+      title: 'Animal Farm',
+      genre: 'Satire',
+      authorId: 1,
+      totalQuantity: 7,
+      availableQuantity: 7,
+      isbn: '9788535909553',
+      yearPublished: 1945,
+      createdAt: '2025-03-24T19:56:45.000Z',
+      updatedAt: '2025-03-24T19:56:45.000Z'
+    }
+  })
+  @ApiBookInventoryBadRequestResponse()
+  @ApiSharedUnauthorizedResponse()
+  @ApiBookRemoveInventoryConflictResponse()
+  @HttpCode(200)
+  @Post(':id/remove-inventory')
+  async removeBookInventory(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: RemoveBookInventoryDTO
+  ) {
+    return this.bookService.removeBooksToInventory(id, data)
   }
 }
