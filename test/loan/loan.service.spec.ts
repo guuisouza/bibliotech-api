@@ -122,7 +122,7 @@ describe('Loan Service', () => {
       }
 
       await expect(loanService.create(pastDateDTO)).rejects.toThrow(
-        new BadRequestException('loan date must be greater than current date')
+        new BadRequestException('due date must be greater than current date')
       )
     })
 

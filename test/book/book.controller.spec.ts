@@ -151,11 +151,14 @@ describe('BookController', () => {
       const dto = { amount: 2 }
       const mockReturn = { id: 1, ...dto }
 
-      mockBookService.addBooksToInventory.mockResolvedValue(mockReturn)
+      mockBookService.removeBooksToInventory.mockResolvedValue(mockReturn)
 
-      const result = await bookController.addBookInventory(1, dto)
+      const result = await bookController.removeBookInventory(1, dto)
 
-      expect(mockBookService.addBooksToInventory).toHaveBeenCalledWith(1, dto)
+      expect(mockBookService.removeBooksToInventory).toHaveBeenCalledWith(
+        1,
+        dto
+      )
       expect(result).toEqual(mockReturn)
     })
   })
