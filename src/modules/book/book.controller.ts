@@ -30,13 +30,13 @@ import {
   ApiSharedUnauthorizedResponse,
   ApiSharedBookNotFoundResponse,
   ApiSharedAuthorNotFoundResponse
-} from 'src/swagger/responses/shared.responses'
+} from '../../swagger/responses/shared.responses'
 import {
   ApiBookBadRequestResponse,
   ApiBookConflictResponse,
   ApiBookInventoryBadRequestResponse,
   ApiBookRemoveInventoryConflictResponse
-} from 'src/swagger/responses/book.responses'
+} from '../../swagger/responses/book.responses'
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

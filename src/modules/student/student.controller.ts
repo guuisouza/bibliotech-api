@@ -27,12 +27,12 @@ import {
 import {
   ApiSharedStudentNotFoundResponse,
   ApiSharedUnauthorizedResponse
-} from 'src/swagger/responses/shared.responses'
+} from '../../swagger/responses/shared.responses'
 import {
   ApiStudentBadRequestResponse,
   ApiStudentConflictResponse,
   ApiStudentFindOneResponse
-} from 'src/swagger/responses/student.responses'
+} from '../../swagger/responses/student.responses'
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

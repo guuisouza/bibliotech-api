@@ -25,11 +25,11 @@ import {
 import {
   ApiSharedUnauthorizedResponse,
   ApiSharedAuthorNotFoundResponse
-} from 'src/swagger/responses/shared.responses'
+} from '../../swagger/responses/shared.responses'
 import {
   ApiAuthorBadRequestResponse,
   ApiAuthorConflictResponse
-} from 'src/swagger/responses/author.responses'
+} from '../../swagger/responses/author.responses'
 
 @ApiTags('Authors')
 @ApiBearerAuth()

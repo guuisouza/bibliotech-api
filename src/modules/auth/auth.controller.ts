@@ -5,7 +5,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
   ApiLoginBadRequestResponse,
   ApiLoginUnauthorizedResponse
-} from 'src/swagger/responses/login.responses'
+} from '../../swagger/responses/login.responses'
 
 @ApiTags('Authentication')
 @Controller('auth')

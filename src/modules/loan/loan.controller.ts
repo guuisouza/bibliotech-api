@@ -25,11 +25,11 @@ import {
 import {
   ApiCreateLoanBadRequestResponse,
   ApiCreateLoanConflictResponse
-} from 'src/swagger/responses/loan.responses'
+} from '../../swagger/responses/loan.responses'
 import {
   ApiSharedLoanNotFoundResponse,
   ApiSharedUnauthorizedResponse
-} from 'src/swagger/responses/shared.responses'
+} from '../../swagger/responses/shared.responses'
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
